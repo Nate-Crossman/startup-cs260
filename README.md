@@ -12,7 +12,7 @@ A brief description of the application here. Lorem ipsum dolor sit amet, consect
 
 ### Elevator pitch
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+My application would allow users to create lobbies with various other users. Once in the lobby, a user can be selected or predetermined as the judge who expresses a prompt. The application would then ask other users that prompt and allow people to compare and vote for their favorite of the responses. It would be played in a manner similar to the party game 'Quiplash', but could also be used in other contexts, like education or as an icebreaker.
 
 ### Design
 
@@ -29,20 +29,21 @@ sequenceDiagram
 
 ### Key features
 
-- Describe your key feature
-- Describe your key feature
-- Describe your key feature
+- Login Feature
+- Create and Join Private Lobbies
+- Third Party API can be used to help with example prompts or responses
+- 
 
 ### Technologies
 
 I am going to use the required technologies in the following ways.
 
-- **HTML** - Description here
-- **CSS** - Description here
-- **React** - Description here
-- **Service** - Description here
-- **DB/Login** - Description here
-- **WebSocket** - Description here
+- **HTML** - Base framework of login page, private lobby pages, and 
+- **CSS** - Create a fun design around the page to keep it visually interesting and have a party game aesthetic, but ensure readability is maintained for the best user experience.
+- **React** - Use react to make the webpage interactable, such as buttons for submitting and joining a game.
+- **Service** - Backend to process things like login data, lobbies, prompts, and votes. Third Party API's, such as [this fact generator](https://uselessfacts.jsph.pl/) will be implemented to hopefully inspire someone to come up with a prompt or response if they can't think of anything.
+- **DB/Login** - Store login information, users, lobbies.
+- **WebSocket** - Allow players to see the votes of other players for prompts, hopefully in real time.
 
 ## 🚀 Specification Deliverable
 
@@ -51,9 +52,9 @@ I am going to use the required technologies in the following ways.
 
 For this deliverable I did the following. I checked the box `[x]` and added a description for things I completed.
 
-- [ ] I completed the prerequisites for this deliverable (Git commit requirement)
-- [ ] Proper use of Markdown
-- [ ] A concise and compelling elevator pitch
+- [X] I completed the prerequisites for this deliverable (Git commit requirement)
+- [X] Proper use of Markdown
+- [X] A concise and compelling elevator pitch
 - [ ] Description of key features
 - [ ] Description of how you will use each technology including your 3rd party API and use of WebSocket
 - [ ] One or more rough sketches of your application. Images must be embedded in this file using Markdown image references.
