@@ -2,7 +2,7 @@
 
 [My Notes](notes.md)
 
-TIEWOW is a party game where players defeat their closest friends through the power of choosing "the best words" in response to a prompt of their own design.
+TIEWOW is a Quiplash-inspired party game where players defeat their closest friends through the power of choosing "the best words" in response to a prompt of their own design.
 
 > [!NOTE]
 > This is a template for your startup application. You must modify this `README.md` file for each phase of your development. You only need to fill in the section for each deliverable when that deliverable is submitted in Canvas. Without completing the section for a deliverable, the TA will not know what to look for when grading your submission. Feel free to add additional information to each deliverable description, but make sure you at least have the list of rubric items and a description of what you did for each item.
@@ -16,7 +16,7 @@ My application would allow users to create lobbies with various other users. Onc
 
 ### Design
 
-![Design image](placeholder.png)
+![Design image](startup_design.png)
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 
