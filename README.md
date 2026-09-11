@@ -1,8 +1,8 @@
-# Your startup name here
+# Project Name: T.I.E.W.O.W (The Intense Epic War of Words)
 
 [My Notes](notes.md)
 
-A brief description of the application here. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+TIEWOW is a party game where players defeat their closest friends through the power of choosing "the best words" in response to a prompt of their own design.
 
 > [!NOTE]
 > This is a template for your startup application. You must modify this `README.md` file for each phase of your development. You only need to fill in the section for each deliverable when that deliverable is submitted in Canvas. Without completing the section for a deliverable, the TA will not know what to look for when grading your submission. Feel free to add additional information to each deliverable description, but make sure you at least have the list of rubric items and a description of what you did for each item.
@@ -32,7 +32,9 @@ sequenceDiagram
 - Login Feature
 - Create and Join Private Lobbies
 - Third Party API can be used to help with example prompts or responses
-- 
+- Prompt creation where a player can create a question for others to answer
+- Voting period where players vote for the best prompt
+- Point system to keep track of the player with the most votes
 
 ### Technologies
 
@@ -55,8 +57,8 @@ For this deliverable I did the following. I checked the box `[x]` and added a de
 - [X] I completed the prerequisites for this deliverable (Git commit requirement)
 - [X] Proper use of Markdown
 - [X] A concise and compelling elevator pitch
-- [ ] Description of key features
-- [ ] Description of how you will use each technology including your 3rd party API and use of WebSocket
+- [X] Description of key features
+- [X] Description of how you will use each technology including your 3rd party API and use of WebSocket
 - [ ] One or more rough sketches of your application. Images must be embedded in this file using Markdown image references.
 
 ## 🚀 AWS deliverable
