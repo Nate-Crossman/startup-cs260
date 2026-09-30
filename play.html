@@ -51,66 +51,47 @@
       <!-- More formatting with old style HTML -->
       <br />
 
-      <div>
-        <label for="count">Score</label>
-        <input type="text" id="count" value="--" readonly />
-      </div>
+      <br />
+
+
+      <form method="get">
+        <div>
+          <span>Enter Prompt:</span>
+          <input type="text" placeholder="Type a prompt here!" />
+        </div>
+
+        <button type="submit">Submit</button>
+      </form>
 
       <br />
 
-      <div>
-        <button>Reset</button>
-      </div>
+  <table>
+  <!-- Header Row -->
+  <tr>
+    VOTE FOR THE VICTOR
+    <th></th>
+    <th></th>
+  </tr>
+  <!-- Data Row 1 -->
+  <tr>
+    <td><button> Vote </button></td>
+    <td><span id="submission"> [User submission responding to the prompt]</span></td>
+  </tr>
+  <!-- Data Row 2 -->
+  <tr>
+    <td><button> Vote </button></td>
+    <td><span id="submission"> [Different and slightly lamer response]</span></td>
+  </tr>
+</table>
 
-      <br />
-
-      <div>
-        <table>
-          <tr>
-            <td>
-              <button>
-                <svg aria-hidden="true" viewBox="0 0 100 100" height="100" width="100">
-                  <!-- SVG
-                    M move <to x,y>
-                    Q quadratic curve <control point x,y> <to x,y>
-                -->
-                  <path d="M 95,5 95,95 5,95 Q 5,5 95,5" fill="green" />
-                </svg>
-              </button>
-            </td>
-            <td>
-              <button>
-                <svg aria-hidden="true" viewBox="0 0 100 100" height="100" width="100">
-                  <path d="M5,5 5,95 95,95 Q 95,5 5,5" fill="red" />
-                </svg>
-              </button>
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <button>
-                <svg aria-hidden="true" viewBox="0 0 100 100" height="100" width="100">
-                  <path d="M5,5 95,5 95,95 Q 5,95 5,5" fill="blue" />
-                </svg>
-              </button>
-            </td>
-            <td>
-              <button>
-                <svg aria-hidden="true" viewBox="0 0 100 100" height="100" width="100">
-                  <path d="M95,5 5,5 5,95 Q 95,95 95,5" fill="yellow" />
-                </svg>
-              </button>
-            </td>
-          </tr>
-        </table>
-      </div>
+      
     </main>
 
     <footer>
       <hr />
-      <span class="text-reset">Author Name(s)</span>
+      <span class="text-reset">T.I.E.W.O.W. is a game by Nate Crossman</span>
       <br />
-      <a href="https://github.com/webprogramming260/simon-html">GitHub</a>
+      <a href="https://github.com/Nate-Crossman/startup-cs260">GitHub</a>
     </footer>
   </body>
 </html>
