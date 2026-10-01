@@ -1,7 +1,7 @@
 body {
   display: flex;
   flex-direction: column;
-  min-width: 375px;
+  min-width: 320px;
 }
 
 header {
@@ -37,6 +37,16 @@ menu {
 
 menu .nav-item {
   padding: 0 0.3em;
+}
+
+.game-list-row {
+  display: grid;
+  grid-template-columns: minmax(2rem, 0.4fr) minmax(0, 1.4fr) minmax(0, 1.2fr) minmax(4rem, 0.7fr);
+}
+
+.game-list-row > .list-group-item {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 footer a {
