@@ -80,6 +80,7 @@ main {
   align-items: left;
   justify-content: normal;
   padding-inline: 3rem;
+  padding-top: 1rem;
 }
 
 
@@ -136,8 +137,14 @@ menu .nav-item {
   width: 24%;
 }
 
+footer .footer-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 footer a {
-  float: right;
   color: #0d6efd;
 }
 
