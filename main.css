@@ -39,14 +39,34 @@ menu .nav-item {
   padding: 0 0.3em;
 }
 
-.game-list-row {
-  display: grid;
-  grid-template-columns: minmax(2rem, 0.4fr) minmax(0, 1.4fr) minmax(0, 1.2fr) minmax(4rem, 0.7fr);
+.game-list-table {
+  width: 100%;
+  table-layout: fixed;
 }
 
-.game-list-row > .list-group-item {
-  min-width: 0;
+.game-list-table th,
+.game-list-table td {
   overflow-wrap: anywhere;
+}
+
+.game-list-table th:first-child,
+.game-list-table td:first-child {
+  width: 8%;
+}
+
+.game-list-table th:nth-child(2),
+.game-list-table td:nth-child(2) {
+  width: 28%;
+}
+
+.game-list-table th:nth-child(3),
+.game-list-table td:nth-child(3) {
+  width: 40%;
+}
+
+.game-list-table th:nth-child(4),
+.game-list-table td:nth-child(4) {
+  width: 24%;
 }
 
 footer a {
