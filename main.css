@@ -43,6 +43,8 @@ header {
 
 header h1 {
   font-family: "Road Rage", cursive;
+  font-size: 3rem;
+  color: #3e285e;
 }
 
 .login-form .form-control {
@@ -118,6 +120,7 @@ menu .nav-item {
 .game-list-table {
   width: 100%;
   table-layout: fixed;
+  --bs-table-striped-bg: rgba(var(--bs-primary-rgb), 0.14);
 }
 
 .game-list-table th,
