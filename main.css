@@ -1,5 +1,28 @@
 @import url("https://fonts.googleapis.com/css2?family=Road+Rage&family=Winky+Rough&display=swap");
 
+:root {
+  --bs-primary: #70509f;
+  --bs-primary-rgb: 112, 80, 159;
+  --bs-secondary: #716779;
+  --bs-secondary-rgb: 113, 103, 121;
+  --bs-success: #2f8068;
+  --bs-success-rgb: 47, 128, 104;
+  --bs-info: #397f94;
+  --bs-info-rgb: 57, 127, 148;
+  --bs-warning: #c68c2f;
+  --bs-warning-rgb: 198, 140, 47;
+  --bs-danger: #b64d68;
+  --bs-danger-rgb: 182, 77, 104;
+  --bs-light: #f6f2fa;
+  --bs-light-rgb: 246, 242, 250;
+  --bs-dark: #342b3d;
+  --bs-dark-rgb: 52, 43, 61;
+  --bs-link-color: #62458e;
+  --bs-link-color-rgb: 98, 69, 142;
+  --bs-link-hover-color: #493269;
+  --bs-link-hover-color-rgb: 73, 50, 105;
+}
+
 body {
   display: flex;
   flex-direction: column;
@@ -11,10 +34,43 @@ body {
 header {
   flex: 0 80px;
   padding-inline: 1rem;
+  background-color: #c7b4e2;
 }
 
 header h1 {
   font-family: "Road Rage", cursive;
+}
+
+.btn-primary {
+  --bs-btn-bg: var(--bs-primary);
+  --bs-btn-border-color: var(--bs-primary);
+  --bs-btn-hover-bg: #5e4289;
+  --bs-btn-hover-border-color: #58407f;
+  --bs-btn-active-bg: #58407f;
+  --bs-btn-active-border-color: #523a76;
+}
+
+.btn-outline-primary {
+  --bs-btn-color: var(--bs-primary);
+  --bs-btn-border-color: var(--bs-primary);
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: var(--bs-primary);
+  --bs-btn-hover-border-color: var(--bs-primary);
+  --bs-btn-focus-shadow-rgb: var(--bs-primary-rgb);
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg: var(--bs-primary);
+  --bs-btn-active-border-color: var(--bs-primary);
+  --bs-btn-disabled-color: var(--bs-primary);
+  --bs-btn-disabled-border-color: var(--bs-primary);
+}
+
+.btn-secondary {
+  --bs-btn-bg: var(--bs-secondary);
+  --bs-btn-border-color: var(--bs-secondary);
+  --bs-btn-hover-bg: #60576a;
+  --bs-btn-hover-border-color: #595063;
+  --bs-btn-active-bg: #595063;
+  --bs-btn-active-border-color: #52495c;
 }
 
 main {
@@ -82,6 +138,11 @@ menu .nav-item {
 
 footer a {
   float: right;
+  color: #0d6efd;
+}
+
+footer a:hover {
+  color: #0a58ca;
 }
 
 @media (max-height: 600px) {
