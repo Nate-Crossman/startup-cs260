@@ -64,28 +64,28 @@ For this deliverable I did the following. I checked the box `[x]` and added a de
 
 For this deliverable I did the following. I checked the box `[x]` and added a description for things I completed.
 
-- [ ] I completed the prerequisites for this deliverable (Simon deployed, GitHub link, Git commits)
-- [ ] **HTML pages** - I did not complete this part of the deliverable.
-- [ ] **Proper HTML element usage** - I did not complete this part of the deliverable.
-- [ ] **Links** - I did not complete this part of the deliverable.
-- [ ] **Text** - I did not complete this part of the deliverable.
-- [ ] **3rd party API placeholder** - I did not complete this part of the deliverable.
-- [ ] **Images** - I did not complete this part of the deliverable.
-- [ ] **Login placeholder** - I did not complete this part of the deliverable.
-- [ ] **DB data placeholder** - I did not complete this part of the deliverable.
-- [ ] **WebSocket placeholder** - I did not complete this part of the deliverable.
+- [X] I completed the prerequisites for this deliverable (Simon deployed, GitHub link, Git commits)
+- [X] **HTML pages** - I created four HTML pages to represent my page. I have Index, Play, Games, and How-to-play.
+- [X] **Proper HTML element usage** - I sure hope it was proper. The home one is named index.
+- [X] **Links** - Each HTML page has a link to the others in a nav bar.
+- [X] **Text** - I did not complete this part of the deliverable.
+- [] **3rd party API placeholder** - Lowkey I forgot to include this but I added it during the CSS step.
+- [X] **Images** - I created my own image to add to the rules page using an old painting recently added to the public domain.
+- [X] **Login placeholder** - The index.html file has a placeholder for the login.
+- [X] **DB data placeholder** - The game.html file has a placeholder for the games database.
+- [X] **WebSocket placeholder** - The play.html file has spaces where Websockets would allow real time input, so players can see other's prompts and responses in near-immediate time.
 
 ## 🚀 CSS deliverable
 
 For this deliverable I did the following. I checked the box `[x]` and added a description for things I completed.
 
-- [ ] I completed the prerequisites for this deliverable (Simon deployed, GitHub link, Git commits)
-- [ ] **Visually appealing colors and layout. No overflowing elements.** - I did not complete this part of the deliverable.
-- [ ] **Use of a CSS framework** - I did not complete this part of the deliverable.
-- [ ] **All visual elements styled using CSS** - I did not complete this part of the deliverable.
-- [ ] **Responsive to window resizing using flexbox and/or grid display** - I did not complete this part of the deliverable.
-- [ ] **Use of a imported font** - I did not complete this part of the deliverable.
-- [ ] **Use of different types of selectors including element, class, ID, and pseudo selectors** - I did not complete this part of the deliverable.
+- [X] I completed the prerequisites for this deliverable (Simon deployed, GitHub link, Git commits)
+- [X] **Visually appealing colors and layout. No overflowing elements.** - I made my page a pleasant color with a cohesive theme and flowing layout.
+- [X] **Use of a CSS framework** - I utilized bootstrap extensively to make my page more readable and reactive.
+- [X] **All visual elements styled using CSS** - I used CSS and Bootstrap to give my elements their own style.
+- [X] **Responsive to window resizing using flexbox and/or grid display** - I used flex to make several elements change and shrink as needed to fit the viewing experience.
+- [X] **Use of a imported font** - I imported two fonts from Google Fonts to give my page a unique feel
+- [X] **Use of different types of selectors including element, class, ID, and pseudo selectors** - I used many different types of selectors to seperately style different elements of my page.
 
 ## 🚀 React part 1: Routing deliverable
 
