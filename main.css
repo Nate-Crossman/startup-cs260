@@ -1,13 +1,20 @@
+@import url("https://fonts.googleapis.com/css2?family=Road+Rage&family=Winky+Rough&display=swap");
+
 body {
   display: flex;
   flex-direction: column;
   min-width: 320px;
   background-color: #f3eefb;
+  font-family: "Winky Rough", cursive;
 }
 
 header {
   flex: 0 80px;
   padding-inline: 1rem;
+}
+
+header h1 {
+  font-family: "Road Rage", cursive;
 }
 
 main {
