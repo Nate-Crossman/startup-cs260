@@ -62,34 +62,21 @@
 
 
       <form method="get">
-        <div>
-          <span>Enter Prompt:</span>
-          <input type="text" placeholder="Type a prompt here!" />
+        <div class="mb-3">
+          <label for="prompt-input" class="form-label">Enter Prompt:</label>
+          <input id="prompt-input" type="text" class="form-control" placeholder="Type a prompt here!" />
         </div>
 
-        <button type="submit">Submit</button>
+        <button type="submit" class="btn btn-primary">Submit</button>
       </form>
 
       <br />
 
-  <table>
-  <!-- Header Row -->
-  <tr>
-    VOTE FOR THE VICTOR
-    <th></th>
-    <th></th>
-  </tr>
-  <!-- Data Row 1 -->
-  <tr>
-    <td><button> Vote </button></td>
-    <td><span id="submission"> [User submission responding to the prompt]</span></td>
-  </tr>
-  <!-- Data Row 2 -->
-  <tr>
-    <td><button> Vote </button></td>
-    <td><span id="submission"> [Different and slightly lamer response]</span></td>
-  </tr>
-</table>
+      <h2 class="h5">VOTE FOR THE VICTOR</h2>
+      <div class="btn-group-vertical w-100" role="group" aria-label="Vote for the victor">
+        <button type="button" class="btn btn-outline-primary">[User submission responding to the prompt]</button>
+        <button type="button" class="btn btn-outline-primary">[Different and slightly lamer response]</button>
+      </div>
 
       
     </main>
