@@ -2,10 +2,12 @@ body {
   display: flex;
   flex-direction: column;
   min-width: 320px;
+  background-color: #f3eefb;
 }
 
 header {
   flex: 0 80px;
+  padding-inline: 1rem;
 }
 
 main {
@@ -14,12 +16,14 @@ main {
   flex-direction: column;
   align-items: left;
   justify-content: normal;
+  padding-inline: 3rem;
 }
 
 
 
 footer {
   flex: 0 30px;
+  padding-inline: 1rem;
 }
 
 menu {
