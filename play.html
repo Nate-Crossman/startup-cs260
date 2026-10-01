@@ -29,54 +29,53 @@
     </header>
 
     <main>
-      <div class="game">
+      <div class="game mb-3">
         You are in game: <span class="game-name">[Name of Game]</span>
       </div>
-      <h2 class="h5">Players</h2>
-      <ul class="list-group players">
-        <li class="list-group-item d-flex justify-content-between align-items-center">
-          <div class="ms-2 me-auto">
-            <span class="player-score badge text-bg-secondary rounded-pill me-2">[1]</span>
-            <span class="player-name">Player-Name</span>
+      <section class="mb-5" aria-labelledby="players-heading">
+        <h2 id="players-heading" class="h5 mb-2">Players</h2>
+        <ul class="list-group players">
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <div class="ms-2 me-auto">
+              <span class="player-score badge text-bg-secondary rounded-pill me-2">[1]</span>
+              <span class="player-name">Player-Name</span>
+            </div>
+            <span class="player-role badge text-bg-primary rounded-pill">JUDGE</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <div class="ms-2 me-auto">
+              <span class="player-score badge text-bg-secondary rounded-pill me-2">[2]</span>
+              <span class="player-name">Player-Name</span>
+            </div>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <div class="ms-2 me-auto">
+              <span class="player-score badge text-bg-secondary rounded-pill me-2">[0]</span>
+              <span class="player-name">Player-Name</span>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <section class="mb-5" aria-label="Enter Prompt">
+        <form method="get" class="row g-3 align-items-end">
+          <div class="col-12 col-md-6">
+            <label for="prompt-input" class="form-label">Enter Prompt:</label>
+            <input id="prompt-input" type="text" class="form-control" placeholder="Type a prompt here!" />
           </div>
-          <span class="player-role badge text-bg-primary rounded-pill">JUDGE</span>
-        </li>
-        <li class="list-group-item d-flex justify-content-between align-items-center">
-          <div class="ms-2 me-auto">
-            <span class="player-score badge text-bg-secondary rounded-pill me-2">[2]</span>
-            <span class="player-name">Player-Name</span>
+          <div class="col-12 col-md-6">
+            <button type="submit" class="btn btn-primary w-100">Submit</button>
           </div>
-        </li>
-        <li class="list-group-item d-flex justify-content-between align-items-center">
-          <div class="ms-2 me-auto">
-            <span class="player-score badge text-bg-secondary rounded-pill me-2">[0]</span>
-            <span class="player-name">Player-Name</span>
-          </div>
-        </li>
-      </ul>
+        </form>
+      </section>
 
-      <!-- More formatting with old style HTML -->
-      <br />
-
-      <br />
-
-
-      <form method="get">
-        <div class="mb-3">
-          <label for="prompt-input" class="form-label">Enter Prompt:</label>
-          <input id="prompt-input" type="text" class="form-control" placeholder="Type a prompt here!" />
+      <section aria-labelledby="vote-heading">
+        <h2 id="vote-heading" class="h5 mb-2">VOTE FOR THE VICTOR</h2>
+        <div class="btn-group-vertical w-100" role="group" aria-label="Vote for the victor">
+          <button type="button" class="btn btn-outline-primary">[User submission responding to the prompt]</button>
+          <button type="button" class="btn btn-outline-primary">[Different and slightly lamer response]</button>
         </div>
-
-        <button type="submit" class="btn btn-primary">Submit</button>
-      </form>
-
-      <br />
-
-      <h2 class="h5">VOTE FOR THE VICTOR</h2>
-      <div class="btn-group-vertical w-100" role="group" aria-label="Vote for the victor">
-        <button type="button" class="btn btn-outline-primary">[User submission responding to the prompt]</button>
-        <button type="button" class="btn btn-outline-primary">[Different and slightly lamer response]</button>
-      </div>
+      </section>
 
       
     </main>
