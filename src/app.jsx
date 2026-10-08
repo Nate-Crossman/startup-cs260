@@ -4,6 +4,7 @@ import './app.css';
 
 export default function App() {
   return (
+    <div className="body bg-dark text-light">
     <header>
       <div className="d-flex flex-column flex-md-row justify-content-center justify-content-md-between align-items-center">
         <h1 className="mb-0">T.I.E.W.O.W.</h1>
@@ -18,5 +19,14 @@ export default function App() {
       </div>
       <hr />
     </header>
+    <main> app content goes here </main>
+    <footer>
+      <hr />
+      <div className="footer-content">
+        <span className="text-reset">T.I.E.W.O.W. is a game by Nate Crossman</span>
+        <a href="https://github.com/Nate-Crossman/startup-cs260">GitHub</a>
+      </div>
+    </footer>
+    </div>
   )
 }
