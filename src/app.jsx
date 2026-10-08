@@ -2,8 +2,15 @@ import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './app.css';
 
+import { BrowserRouter, NavLink, Route, Routes } from 'react-router-dom';
+import { Login } from './login/login';
+import { Play } from './play/play';
+import { Games } from './games/games';
+import { HowToPlay } from './how-to-play/how-to-play';
+
 export default function App() {
   return (
+    <BrowserRouter>
     <div className="body bg-dark text-light">
     <header>
       <div className="d-flex flex-column flex-md-row justify-content-center justify-content-md-between align-items-center">
@@ -28,5 +35,6 @@ export default function App() {
       </div>
     </footer>
     </div>
+    </BrowserRouter>
   )
 }
