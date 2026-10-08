@@ -11,7 +11,7 @@ import { HowToPlay } from './how-to-play/how-to-play';
 export default function App() {
   return (
     <BrowserRouter>
-    <div className="body bg-dark text-light">
+    <div className="body bg-light text-dark">
     <header>
       <div className="d-flex flex-column flex-md-row justify-content-center justify-content-md-between align-items-center">
         <h1 className="mb-0">T.I.E.W.O.W.</h1>
