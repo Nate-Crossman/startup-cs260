@@ -17,24 +17,34 @@ export default function App() {
         <h1 className="mb-0">T.I.E.W.O.W.</h1>
         <nav className="navbar navbar-expand p-0 w-100 flex-md-grow-1 justify-content-center justify-content-md-end">
           <ul className="navbar-nav flex-row flex-wrap justify-content-center justify-content-md-end gap-2 w-100">
-            <li className="nav-item"><a className="nav-link" href="index.html">Home</a></li>
-            <li className="nav-item"><a className="nav-link" href="play.html">Play</a></li>
-            <li className="nav-item"><a className="nav-link" href="games.html">Join Game</a></li>
-            <li className="nav-item"><a className="nav-link" href="how-to-play.html">Rules</a></li>
+            <li className="nav-item"><NavLink className="nav-link" to="">Home</NavLink></li>
+            <li className="nav-item"><NavLink className="nav-link" to="play">Play</NavLink></li>
+            <li className="nav-item"><NavLink className="nav-link" to="games">Join Game</NavLink></li>
+            <li className="nav-item"><NavLink className="nav-link" to="how-to-play">Rules</NavLink></li>
           </ul>
         </nav>
       </div>
       <hr />
     </header>
-    <main> app content goes here </main>
+    <Routes>
+        <Route path='/' element={<Login />} exact />
+        <Route path='/play' element={<Play />} />
+        <Route path='/games' element={<Games />} />
+        <Route path='/how-to-play' element={<HowToPlay />} />
+        <Route path='*' element={<NotFound />} />
+    </Routes>
     <footer>
       <hr />
       <div className="footer-content">
-        <span className="text-reset">T.I.E.W.O.W. is a game by Nate Crossman</span>
-        <a href="https://github.com/Nate-Crossman/startup-cs260">GitHub</a>
+        <span className="text-reset">T.I.E.W.O.W. is NavLink game by Nate Crossman</span>
+        <NavLink href="https://github.com/Nate-Crossman/startup-cs260">GitHub</NavLink>
       </div>
     </footer>
     </div>
     </BrowserRouter>
   )
+}
+
+function NotFound() {
+  return <main className="container-fluid bg-secondary text-center">404: Return to sender. Address unknown.</main>;
 }
