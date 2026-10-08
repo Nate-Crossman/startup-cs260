@@ -23,7 +23,7 @@
   --bs-link-hover-color-rgb: 73, 50, 105;
 }
 
-body {
+.body {
   display: flex;
   flex-direction: column;
   min-width: 320px;
