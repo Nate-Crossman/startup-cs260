@@ -91,10 +91,10 @@ For this deliverable I did the following. I checked the box `[x]` and added a de
 
 For this deliverable I did the following. I checked the box `[x]` and added a description for things I completed.
 
-- [ ] I completed the prerequisites for this deliverable (Simon deployed, GitHub link, Git commits)
-- [ ] **Bundled using Vite** - I did not complete this part of the deliverable.
-- [ ] **Components** - I did not complete this part of the deliverable.
-- [ ] **Router** - I did not complete this part of the deliverable.
+- [X] I completed the prerequisites for this deliverable (Simon deployed, GitHub link, Git commits)
+- [X] **Bundled using Vite** - I used vite to bundle the components of this deliverable.
+- [X] **Components** - I transformed my html files into 4 different jsx files that contain the information of the original files in a function to be called by the main app.
+- [X] **Router** - I rewrote the links to instead be a router that calls different functions to display different pages content in the body of the website.
 
 ## 🚀 React part 2: Reactivity deliverable
 
