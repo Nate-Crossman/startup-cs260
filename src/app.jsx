@@ -37,7 +37,7 @@ export default function App() {
       <hr />
       <div className="footer-content">
         <span className="text-reset">T.I.E.W.O.W. is a game by Nate Crossman</span>
-        <NavLink href="https://github.com/Nate-Crossman/startup-cs260">GitHub</NavLink>
+        <a href="https://github.com/Nate-Crossman/startup-cs260">GitHub</a>
       </div>
     </footer>
     </div>
