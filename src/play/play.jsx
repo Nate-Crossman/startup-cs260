@@ -1,33 +1,36 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 export function Play() {
+  const [game] = useState(() => JSON.parse(localStorage.getItem('currentGame') ?? 'null'));
+
+  if (!game) {
+    return (
+      <main>
+        You're not in a game. <Link to="/games">Join here</Link>
+      </main>
+    );
+  }
+
   return (
     <main>
       <div className="game mb-3">
-        You are in game: <span className="game-name">[Name of Game]</span>
+        You are in game: <span className="game-name">{game.name}</span>
       </div>
       <section className="mb-5" aria-labelledby="players-heading">
         <h2 id="players-heading" className="h5 mb-2">Players</h2>
         <ul className="list-group players">
-          <li className="list-group-item d-flex justify-content-between align-items-center">
-            <div className="ms-2 me-auto">
-              <span className="player-score badge text-bg-secondary rounded-pill me-2">[1]</span>
-              <span className="player-name">Player-Name</span>
-            </div>
-            <span className="player-role badge text-bg-primary rounded-pill">JUDGE</span>
-          </li>
-          <li className="list-group-item d-flex justify-content-between align-items-center">
-            <div className="ms-2 me-auto">
-              <span className="player-score badge text-bg-secondary rounded-pill me-2">[2]</span>
-              <span className="player-name">Player-Name</span>
-            </div>
-          </li>
-          <li className="list-group-item d-flex justify-content-between align-items-center">
-            <div className="ms-2 me-auto">
-              <span className="player-score badge text-bg-secondary rounded-pill me-2">[0]</span>
-              <span className="player-name">Player-Name</span>
-            </div>
-          </li>
+          {game.users.map((player) => (
+            <li key={player.username} className="list-group-item d-flex justify-content-between align-items-center">
+              <div className="ms-2 me-auto">
+                <span className="player-score badge text-bg-secondary rounded-pill me-2">[{player.score}]</span>
+                <span className="player-name">{player.username}</span>
+              </div>
+              {game.judge === player.username && (
+                <span className="player-role badge text-bg-primary rounded-pill">JUDGE</span>
+              )}
+            </li>
+          ))}
         </ul>
       </section>
 
