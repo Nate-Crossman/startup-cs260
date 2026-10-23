@@ -5,6 +5,11 @@ export function Play() {
   const [game, setGame] = useState(() => JSON.parse(localStorage.getItem('currentGame') ?? 'null'));
   const [error, setError] = useState('');
   const [response, setResponse] = useState('');
+  const allPlayersSubmitted = Boolean(game?.users.length)
+    && game.users.every((player) => player.response?.trim());
+  const judgeResponse = game?.users.find((player) => player.username === game.judge)?.response;
+  const currentUser = JSON.parse(localStorage.getItem('user') ?? 'null');
+  const canSubmitResponse = currentUser?.email === game?.judge || Boolean(judgeResponse?.trim());
 
   useEffect(() => {
     if (!game) {
@@ -56,6 +61,27 @@ export function Play() {
     return () => clearInterval(intervalId);
   }, [game?.id]);
 
+  useEffect(() => {
+    if (!allPlayersSubmitted || currentUser?.email === game?.judge) {
+      return undefined;
+    }
+
+    const intervalId = setInterval(() => {
+      const candidates = game.users.filter(
+        (player) => player.username !== game.judge && player.response?.trim(),
+      );
+      if (candidates.length === 0) {
+        return;
+      }
+
+      clearInterval(intervalId);
+      const winner = candidates[Math.floor(Math.random() * candidates.length)];
+      handleVote(winner.username, true);
+    }, 5000);
+
+    return () => clearInterval(intervalId);
+  }, [allPlayersSubmitted, currentUser?.email, game?.judge, game?.users]);
+
   if (!game) {
     return (
       <main>
@@ -100,11 +126,31 @@ export function Play() {
     setResponse('Suggestion text');
   }
 
-  const allPlayersSubmitted = game.users.length > 0
-    && game.users.every((player) => player.response?.trim());
-  const judgeResponse = game.users.find((player) => player.username === game.judge)?.response;
-  const currentUser = JSON.parse(localStorage.getItem('user') ?? 'null');
-  const canSubmitResponse = currentUser?.email === game.judge || Boolean(judgeResponse?.trim());
+  function handleVote(winnerUsername, automated = false) {
+    if ((!automated && currentUser?.email !== game.judge) || !allPlayersSubmitted) {
+      return;
+    }
+
+    const updatedGame = {
+      ...game,
+      judge: winnerUsername,
+      users: game.users.map((player) => ({
+        ...player,
+        score: player.username === winnerUsername ? player.score + 1 : player.score,
+        response: '',
+      })),
+    };
+    const savedGames = JSON.parse(localStorage.getItem('games') ?? '[]');
+    const updatedGames = savedGames.map((savedGame) => (
+      savedGame.id === updatedGame.id ? updatedGame : savedGame
+    ));
+
+    localStorage.setItem('currentGame', JSON.stringify(updatedGame));
+    localStorage.setItem('games', JSON.stringify(updatedGames));
+    setGame(updatedGame);
+    setResponse('');
+    setError('');
+  }
 
   return (
     <main>
@@ -172,9 +218,14 @@ export function Play() {
             {game.users
               .filter((player) => player.username !== game.judge)
               .map((player) => (
-                <button key={player.username} type="button" className="btn btn-outline-primary">
-                  {player.response}
-                </button>
+              <button
+                key={player.username}
+                type="button"
+                className="btn btn-outline-primary"
+                onClick={() => handleVote(player.username)}
+              >
+                {player.response}
+              </button>
               ))}
           </div>
         </section>
