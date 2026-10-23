@@ -5,6 +5,7 @@ export function Play() {
   const [game, setGame] = useState(() => JSON.parse(localStorage.getItem('currentGame') ?? 'null'));
   const [error, setError] = useState('');
   const [response, setResponse] = useState('');
+  const [roundResult, setRoundResult] = useState(null);
   const allPlayersSubmitted = Boolean(game?.users.length)
     && game.users.every((player) => player.response?.trim());
   const judgeResponse = game?.users.find((player) => player.username === game.judge)?.response;
@@ -149,6 +150,22 @@ export function Play() {
       return;
     }
 
+    const winner = game.users.find((player) => player.username === winnerUsername);
+    const judge = game.users.find((player) => player.username === game.judge);
+    if (!winner) {
+      return;
+    }
+
+    setRoundResult({
+      judgeUsername: game.judge,
+      judgePrompt: judge?.response ?? '',
+      winnerUsername: winner.username,
+      winningResponse: winner.response,
+      playerResponses: game.users
+        .filter((player) => player.username !== game.judge)
+        .map((player) => ({ username: player.username, response: player.response })),
+    });
+
     const updatedGame = {
       ...game,
       judge: winnerUsername,
@@ -258,7 +275,48 @@ export function Play() {
         </section>
       )}
 
-      
+      {roundResult && (
+        <>
+          <div className="modal-backdrop fade show" />
+          <div
+            className="modal d-block"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="round-result-title"
+            tabIndex="-1"
+          >
+            <div className="modal-dialog modal-dialog-centered">
+              <div className="modal-content">
+                <div className="modal-header">
+                  <h2 id="round-result-title" className="modal-title fs-5">Round Results</h2>
+                  <button
+                    type="button"
+                    className="btn-close"
+                    aria-label="Dismiss round results"
+                    onClick={() => setRoundResult(null)}
+                  />
+                </div>
+                <div className="modal-body">
+                  <p className="fs-4"><strong>{roundResult.judgeUsername} says: {roundResult.judgePrompt}</strong></p>
+                  <p className="fs-4"><strong>{roundResult.winnerUsername} won: {roundResult.winningResponse}</strong></p>
+                  <ul className="list-group">
+                    {roundResult.playerResponses.map((player) => (
+                      <li key={player.username} className="list-group-item">
+                        {player.username}: {player.response}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="modal-footer">
+                  <button type="button" className="btn btn-primary" onClick={() => setRoundResult(null)}>
+                    Close
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
     </main>
   );
 }
