@@ -66,6 +66,13 @@ export function Games() {
     setError('');
   }
 
+  function resetGames() {
+    localStorage.setItem('games', JSON.stringify(defaultGames));
+    localStorage.removeItem('currentGame');
+    setGames(defaultGames);
+    setError('');
+  }
+
   function joinGame(game) {
     const user = JSON.parse(localStorage.getItem('user') ?? 'null');
     if (!user?.email) {
@@ -88,7 +95,10 @@ export function Games() {
   return (
     <main>
       <section aria-label="Available games">
-        <button type="button" className="btn btn-primary mb-3" onClick={createGame}>Create Game</button>
+        <div className="d-flex justify-content-between mb-3">
+          <button type="button" className="btn btn-primary" onClick={createGame}>Create Game</button>
+          <button type="button" className="btn btn-danger" onClick={resetGames}>dev: reset games</button>
+        </div>
         {error && <p className="text-danger">{error}</p>}
         <table className="table table-sm table-striped align-middle game-list-table">
           <thead>
