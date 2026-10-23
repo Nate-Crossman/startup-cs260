@@ -165,12 +165,17 @@ export function Play() {
         </section>
       )}
 
-      {allPlayersSubmitted && (
+      {allPlayersSubmitted && currentUser?.email === game.judge && (
         <section aria-labelledby="vote-heading">
           <h2 id="vote-heading" className="h5 mb-2">VOTE FOR THE VICTOR</h2>
           <div className="btn-group-vertical w-100" role="group" aria-label="Vote for the victor">
-            <button type="button" className="btn btn-outline-primary">[User submission responding to the prompt]</button>
-            <button type="button" className="btn btn-outline-primary">[Different and slightly lamer response]</button>
+            {game.users
+              .filter((player) => player.username !== game.judge)
+              .map((player) => (
+                <button key={player.username} type="button" className="btn btn-outline-primary">
+                  {player.response}
+                </button>
+              ))}
           </div>
         </section>
       )}
