@@ -100,9 +100,9 @@ For this deliverable I did the following. I checked the box `[x]` and added a de
 
 For this deliverable I did the following. I checked the box `[x]` and added a description for things I completed.
 
-- [ ] I completed the prerequisites for this deliverable (Simon deployed, GitHub link, Git commits)
-- [ ] **All functionality implemented or mocked out** - I did not complete this part of the deliverable.
-- [ ] **Hooks** - I did not complete this part of the deliverable.
+- [X] I completed the prerequisites for this deliverable (Simon deployed, GitHub link, Git commits)
+- [X] **All functionality implemented or mocked out** - The game is fully mocked out. A lot of this is done through setIntervals that send filler responses for the game to use, where eventually the responses of actual players will be used. 
+- [X] **Hooks** - I used useState and useEffect to do things like display different buttons depending on if you're the judge or not or if you've submitted or joined a game.
 
 ## 🚀 Service deliverable
 
