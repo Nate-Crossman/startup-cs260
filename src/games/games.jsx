@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { removePlayerFromGame } from './game-utils';
 
 const defaultGames = [
   {
@@ -69,25 +70,37 @@ export function Games() {
   }
 
   function joinGame(game) {
-    if (game.users.length >= MAX_PLAYERS) {
-      setError('This game is full');
-      return;
-    }
-
     const user = JSON.parse(localStorage.getItem('user') ?? 'null');
     if (!user?.email) {
       setError('Sign in to join a game');
       return;
     }
 
-    const joinedGame = game.users.some((player) => player.username === user.email)
-      ? game
-      : { ...game, users: [...game.users, { username: user.email, score: 0, response: '' }] };
-    const updatedGames = games.map((savedGame) => savedGame.id === game.id ? joinedGame : savedGame);
+    const currentGame = JSON.parse(localStorage.getItem('currentGame') ?? 'null');
+    const savedGames = JSON.parse(localStorage.getItem('games') ?? '[]');
+    const joiningExistingGame = game.users.some((player) => player.username === user.email);
+    if (!joiningExistingGame && game.users.length >= MAX_PLAYERS) {
+      setError('This game is full');
+      return;
+    }
 
-    localStorage.setItem('games', JSON.stringify(updatedGames));
+    const updatedGames = savedGames.map((savedGame) => {
+      if (currentGame && savedGame.id === currentGame.id && currentGame.id !== game.id) {
+        return removePlayerFromGame(savedGame, user.email);
+      }
+      return savedGame;
+    });
+    const targetGame = updatedGames.find((savedGame) => savedGame.id === game.id) ?? game;
+    const joinedGame = targetGame.users.some((player) => player.username === user.email)
+      ? targetGame
+      : { ...targetGame, users: [...targetGame.users, { username: user.email, score: 0, response: '' }] };
+    const finalGames = updatedGames.some((savedGame) => savedGame.id === game.id)
+      ? updatedGames.map((savedGame) => savedGame.id === game.id ? joinedGame : savedGame)
+      : [...updatedGames, joinedGame];
+
+    localStorage.setItem('games', JSON.stringify(finalGames));
     localStorage.setItem('currentGame', JSON.stringify(joinedGame));
-    setGames(updatedGames);
+    setGames(finalGames);
     setError('');
     navigate('/play');
   }

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { removePlayerFromGame } from '../games/game-utils';
 
 export function Play() {
   const navigate = useNavigate();
@@ -148,19 +149,7 @@ export function Play() {
 
   function leaveGame() {
     const user = JSON.parse(localStorage.getItem('user') ?? 'null');
-    const remainingPlayers = game.users
-      .filter((player) => player.username !== user?.email)
-      .map((player) => ({ ...player, response: '' }));
-    const nextJudge = game.judge === user?.email && remainingPlayers.length > 0
-      ? remainingPlayers[Math.floor(Math.random() * remainingPlayers.length)].username
-      : game.judge === user?.email
-        ? null
-        : game.judge;
-    const updatedGame = {
-      ...game,
-      judge: nextJudge,
-      users: remainingPlayers,
-    };
+    const updatedGame = removePlayerFromGame(game, user?.email);
     const savedGames = JSON.parse(localStorage.getItem('games') ?? '[]');
     const updatedGames = savedGames.map((savedGame) => (
       savedGame.id === updatedGame.id ? updatedGame : savedGame
