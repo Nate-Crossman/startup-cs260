@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 export function Play() {
+  const navigate = useNavigate();
   const [game, setGame] = useState(() => JSON.parse(localStorage.getItem('currentGame') ?? 'null'));
   const [error, setError] = useState('');
   const [response, setResponse] = useState('');
@@ -145,6 +146,33 @@ export function Play() {
     setResponse('Suggestion text');
   }
 
+  function leaveGame() {
+    const user = JSON.parse(localStorage.getItem('user') ?? 'null');
+    const remainingPlayers = game.users
+      .filter((player) => player.username !== user?.email)
+      .map((player) => ({ ...player, response: '' }));
+    const nextJudge = game.judge === user?.email && remainingPlayers.length > 0
+      ? remainingPlayers[Math.floor(Math.random() * remainingPlayers.length)].username
+      : game.judge === user?.email
+        ? null
+        : game.judge;
+    const updatedGame = {
+      ...game,
+      judge: nextJudge,
+      users: remainingPlayers,
+    };
+    const savedGames = JSON.parse(localStorage.getItem('games') ?? '[]');
+    const updatedGames = savedGames.map((savedGame) => (
+      savedGame.id === updatedGame.id ? updatedGame : savedGame
+    ));
+
+    localStorage.setItem('games', JSON.stringify(updatedGames));
+    localStorage.removeItem('currentGame');
+    setGame(null);
+    setRoundResult(null);
+    navigate('/games');
+  }
+
   function handleVote(winnerUsername, automated = false) {
     if ((!automated && currentUser?.email !== game.judge) || !allPlayersSubmitted) {
       return;
@@ -189,8 +217,11 @@ export function Play() {
 
   return (
     <main>
-      <div className="game mb-3">
-        You are in game: <span className="game-name">{game.name}</span>
+      <div className="d-flex justify-content-between align-items-center game mb-3">
+        <span>You are in game: <span className="game-name">{game.name}</span></span>
+        <button type="button" className="btn btn-outline-danger btn-sm" onClick={leaveGame}>
+          Leave Game
+        </button>
       </div>
       <section className="mb-5" aria-labelledby="players-heading">
         <h2 id="players-heading" className="h5 mb-2">Players</h2>
