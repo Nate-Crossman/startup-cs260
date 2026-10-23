@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export function Login({ onLogin }) {
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   function handleSubmit(event) {
     event.preventDefault();
@@ -30,6 +32,7 @@ export function Login({ onLogin }) {
     localStorage.setItem('user', JSON.stringify(user));
     onLogin(user);
     setError('');
+    navigate('/games');
   }
 
   return (
