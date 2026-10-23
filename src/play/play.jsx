@@ -9,7 +9,17 @@ export function Play() {
     && game.users.every((player) => player.response?.trim());
   const judgeResponse = game?.users.find((player) => player.username === game.judge)?.response;
   const currentUser = JSON.parse(localStorage.getItem('user') ?? 'null');
-  const canSubmitResponse = currentUser?.email === game?.judge || Boolean(judgeResponse?.trim());
+  const currentPlayer = game?.users.find((player) => player.username === currentUser?.email);
+  const currentPlayerSubmitted = Boolean(currentPlayer?.response?.trim());
+  const isJudge = currentUser?.email === game?.judge;
+  const canSubmitResponse = Boolean(currentPlayer)
+    && !allPlayersSubmitted
+    && (isJudge ? !currentPlayerSubmitted : Boolean(judgeResponse?.trim()) && !currentPlayerSubmitted);
+  const waitingForResponses = Boolean(judgeResponse?.trim())
+    && currentPlayerSubmitted
+    && !allPlayersSubmitted;
+  const waitingForJudgePrompt = !isJudge && !judgeResponse?.trim();
+  const waitingForJudgeVote = allPlayersSubmitted && !isJudge;
 
   useEffect(() => {
     if (!game) {
@@ -185,8 +195,11 @@ export function Play() {
 
       <section className="mb-4" aria-live="polite" aria-label="Judge prompt">
         <p className="display-6">
-          The Judge says: {game.users.find((player) => player.username === game.judge)?.response
-            || "Wait for the judge to enter their Prompt!"}
+          {judgeResponse
+            ? `The Judge says: ${judgeResponse}`
+            : waitingForJudgePrompt
+              ? 'Waiting for the judge to make the prompt'
+              : 'The Judge says: Wait for the judge to enter their Prompt!'}
         </p>
       </section>
 
@@ -217,6 +230,12 @@ export function Play() {
             </div>
           </div>
         </section>
+      )}
+      {waitingForResponses && (
+        <p className="mb-5" aria-live="polite">Waiting for responses...</p>
+      )}
+      {waitingForJudgeVote && (
+        <p className="mb-5" aria-live="polite">Waiting for the judge to pick the best answer</p>
       )}
 
       {allPlayersSubmitted && currentUser?.email === game.judge && (
