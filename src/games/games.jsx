@@ -14,13 +14,8 @@ const defaultGames = [
     users: [1, 2, 3, 4].map((number) => ({ username: `Player ${number}`, score: 0, response: '' })),
     judge: 'Player 1',
   },
-  {
-    id: 'sample-empty',
-    name: 'Empty Game',
-    users: [],
-    judge: null,
-  },
 ];
+const MAX_PLAYERS = 8;
 
 function loadGames() {
   const savedGames = JSON.parse(localStorage.getItem('games') ?? '[]');
@@ -74,6 +69,11 @@ export function Games() {
   }
 
   function joinGame(game) {
+    if (game.users.length >= MAX_PLAYERS) {
+      setError('This game is full');
+      return;
+    }
+
     const user = JSON.parse(localStorage.getItem('user') ?? 'null');
     if (!user?.email) {
       setError('Sign in to join a game');
@@ -114,9 +114,14 @@ export function Games() {
               <tr key={game.id}>
                 <th scope="row">{index + 1}</th>
                 <td><span className="game-name">{game.name}</span></td>
-                <td><span className="game-player-count">{game.users.length}/8</span></td>
+                <td><span className="game-player-count">{game.users.length}/{MAX_PLAYERS}</span></td>
                 <td>
-                  <button type="button" className="btn btn-sm btn-primary w-100" onClick={() => joinGame(game)}>
+                  <button
+                    type="button"
+                    className="btn btn-sm btn-primary w-100"
+                    onClick={() => joinGame(game)}
+                    disabled={game.users.length >= MAX_PLAYERS}
+                  >
                     Join
                   </button>
                 </td>
