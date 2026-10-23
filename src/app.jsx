@@ -16,6 +16,7 @@ export default function App() {
 
   function handleLogout() {
     localStorage.removeItem('user');
+    localStorage.removeItem('currentGame');
     setUser(null);
   }
 
