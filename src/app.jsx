@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './app.css';
 
@@ -9,12 +9,20 @@ import { Games } from './games/games';
 import { HowToPlay } from './how-to-play/how-to-play';
 
 export default function App() {
+  const [user, setUser] = useState(() => {
+    const storedUser = localStorage.getItem('user');
+    return storedUser ? JSON.parse(storedUser) : null;
+  });
+
   return (
     <BrowserRouter>
     <div className="body bg-light text-dark">
     <header>
       <div className="d-flex flex-column flex-md-row justify-content-center justify-content-md-between align-items-center">
-        <h1 className="mb-0">T.I.E.W.O.W.</h1>
+        <div>
+          <h1 className="mb-0">T.I.E.W.O.W.</h1>
+          {user?.email && <p className="mb-0 small">Signed in as {user.email}</p>}
+        </div>
         <nav className="navbar navbar-expand p-0 w-100 flex-md-grow-1 justify-content-center justify-content-md-end">
           <ul className="navbar-nav flex-row flex-wrap justify-content-center justify-content-md-end gap-2 w-100">
             <li className="nav-item"><NavLink className="nav-link" to="">Home</NavLink></li>
@@ -27,7 +35,7 @@ export default function App() {
       <hr />
     </header>
     <Routes>
-        <Route path='/' element={<Login />} exact />
+        <Route path='/' element={<Login onLogin={setUser} />} exact />
         <Route path='/play' element={<Play />} />
         <Route path='/games' element={<Games />} />
         <Route path='/how-to-play' element={<HowToPlay />} />
