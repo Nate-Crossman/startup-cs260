@@ -16,7 +16,6 @@ export function Play() {
       return undefined;
     }
 
-    const user = JSON.parse(localStorage.getItem('user') ?? 'null');
     const suggestions = [
       'Fun filler text',
       'Lorem Ipsum',
@@ -32,9 +31,18 @@ export function Play() {
         return;
       }
 
-      const player = currentGame.users.find(
-        (gameUser) => gameUser.username !== user?.email && !gameUser.response,
-      );
+      const currentJudgeResponse = currentGame.users.find(
+        (gameUser) => gameUser.username === currentGame.judge,
+      )?.response;
+      if (!currentJudgeResponse?.trim() && currentUser?.email === currentGame.judge) {
+        return;
+      }
+
+      const player = !currentJudgeResponse?.trim()
+        ? currentGame.users.find((gameUser) => gameUser.username === currentGame.judge)
+        : currentGame.users.find(
+          (gameUser) => gameUser.username !== currentUser?.email && !gameUser.response,
+        );
       if (!player) {
         clearInterval(intervalId);
         return;
@@ -59,7 +67,7 @@ export function Play() {
     }, 2000);
 
     return () => clearInterval(intervalId);
-  }, [game?.id]);
+  }, [game?.id, judgeResponse, currentUser?.email]);
 
   useEffect(() => {
     if (!allPlayersSubmitted || currentUser?.email === game?.judge) {
