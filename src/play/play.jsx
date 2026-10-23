@@ -1,10 +1,60 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 export function Play() {
   const [game, setGame] = useState(() => JSON.parse(localStorage.getItem('currentGame') ?? 'null'));
   const [error, setError] = useState('');
   const [response, setResponse] = useState('');
+
+  useEffect(() => {
+    if (!game) {
+      return undefined;
+    }
+
+    const user = JSON.parse(localStorage.getItem('user') ?? 'null');
+    const suggestions = [
+      'Fun filler text',
+      'Lorem Ipsum',
+      'This is some cool filler text',
+      'Help I\'m trapped in the filler text!',
+    ];
+    let responseIndex = 0;
+
+    const intervalId = setInterval(() => {
+      const currentGame = JSON.parse(localStorage.getItem('currentGame') ?? 'null');
+      if (!currentGame || currentGame.id !== game.id) {
+        clearInterval(intervalId);
+        return;
+      }
+
+      const player = currentGame.users.find(
+        (gameUser) => gameUser.username !== user?.email && !gameUser.response,
+      );
+      if (!player) {
+        clearInterval(intervalId);
+        return;
+      }
+
+      const updatedGame = {
+        ...currentGame,
+        users: currentGame.users.map((gameUser) => (
+          gameUser.username === player.username
+            ? { ...gameUser, response: suggestions[responseIndex++ % suggestions.length] }
+            : gameUser
+        )),
+      };
+      const savedGames = JSON.parse(localStorage.getItem('games') ?? '[]');
+      const updatedGames = savedGames.map((savedGame) => (
+        savedGame.id === updatedGame.id ? updatedGame : savedGame
+      ));
+
+      localStorage.setItem('currentGame', JSON.stringify(updatedGame));
+      localStorage.setItem('games', JSON.stringify(updatedGames));
+      setGame(updatedGame);
+    }, 2000);
+
+    return () => clearInterval(intervalId);
+  }, [game?.id]);
 
   if (!game) {
     return (
@@ -71,6 +121,13 @@ export function Play() {
             </li>
           ))}
         </ul>
+      </section>
+
+      <section className="mb-4" aria-live="polite" aria-label="Judge prompt">
+        <p className="display-6">
+          The Judge says: {game.users.find((player) => player.username === game.judge)?.response
+            || "Wait for the judge to enter their Prompt!"}
+        </p>
       </section>
 
       <section className="mb-5" aria-label="Enter Prompt">
