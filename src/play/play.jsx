@@ -100,6 +100,12 @@ export function Play() {
     setResponse('Suggestion text');
   }
 
+  const allPlayersSubmitted = game.users.length > 0
+    && game.users.every((player) => player.response?.trim());
+  const judgeResponse = game.users.find((player) => player.username === game.judge)?.response;
+  const currentUser = JSON.parse(localStorage.getItem('user') ?? 'null');
+  const canSubmitResponse = currentUser?.email === game.judge || Boolean(judgeResponse?.trim());
+
   return (
     <main>
       <div className="game mb-3">
@@ -113,7 +119,7 @@ export function Play() {
               <div className="ms-2 me-auto">
                 <span className="player-score badge text-bg-secondary rounded-pill me-2">[{player.score}]</span>
                 <span className="player-name">{player.username}</span>
-                {player.response && <div className="small">{player.response}</div>}
+                {player.response && <span className="small"> -- Submitted!</span>}
               </div>
               {game.judge === player.username && (
                 <span className="player-role badge text-bg-primary rounded-pill">JUDGE</span>
@@ -130,40 +136,44 @@ export function Play() {
         </p>
       </section>
 
-      <section className="mb-5" aria-label="Enter Prompt">
-        <form onSubmit={handlePromptSubmit} className="row g-3 align-items-end">
-          <div className="col-12 col-md-6">
-            <label htmlFor="prompt-input" className="form-label">Enter Prompt:</label>
-            <input
-              id="prompt-input"
-              name="response"
-              type="text"
-              className="form-control"
-              placeholder="Type a prompt here!"
-              value={response}
-              onChange={(event) => setResponse(event.target.value)}
-              required
-            />
+      {canSubmitResponse && (
+        <section className="mb-5" aria-label="Enter Prompt">
+          <form onSubmit={handlePromptSubmit} className="row g-3 align-items-end">
+            <div className="col-12 col-md-6">
+              <label htmlFor="prompt-input" className="form-label">Enter Prompt:</label>
+              <input
+                id="prompt-input"
+                name="response"
+                type="text"
+                className="form-control"
+                placeholder="Type a prompt here!"
+                value={response}
+                onChange={(event) => setResponse(event.target.value)}
+                required
+              />
+            </div>
+            <div className="col-12 col-md-6">
+              <button type="submit" className="btn btn-primary w-100">Submit</button>
+            </div>
+          </form>
+          {error && <p className="text-danger mt-2">{error}</p>}
+          <div className="row mt-3">
+            <div className="col-12 col-md-6">
+              <button type="button" className="btn btn-secondary w-100" onClick={getSuggestion}>Generate an Idea</button>
+            </div>
           </div>
-          <div className="col-12 col-md-6">
-            <button type="submit" className="btn btn-primary w-100">Submit</button>
-          </div>
-        </form>
-        {error && <p className="text-danger mt-2">{error}</p>}
-        <div className="row mt-3">
-          <div className="col-12 col-md-6">
-            <button type="button" className="btn btn-secondary w-100" onClick={getSuggestion}>Generate an Idea</button>
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
 
-      <section aria-labelledby="vote-heading">
-        <h2 id="vote-heading" className="h5 mb-2">VOTE FOR THE VICTOR</h2>
-        <div className="btn-group-vertical w-100" role="group" aria-label="Vote for the victor">
-          <button type="button" className="btn btn-outline-primary">[User submission responding to the prompt]</button>
-          <button type="button" className="btn btn-outline-primary">[Different and slightly lamer response]</button>
-        </div>
-      </section>
+      {allPlayersSubmitted && (
+        <section aria-labelledby="vote-heading">
+          <h2 id="vote-heading" className="h5 mb-2">VOTE FOR THE VICTOR</h2>
+          <div className="btn-group-vertical w-100" role="group" aria-label="Vote for the victor">
+            <button type="button" className="btn btn-outline-primary">[User submission responding to the prompt]</button>
+            <button type="button" className="btn btn-outline-primary">[Different and slightly lamer response]</button>
+          </div>
+        </section>
+      )}
 
       
     </main>
