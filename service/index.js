@@ -10,7 +10,13 @@ let users = []
 let games = []
 
 const port = process.argv.length > 2 ? process.argv[2] : 4000;
+const authCookieOptions = {
+  httpOnly: true,
+  sameSite: 'lax',
+  secure: process.env.NODE_ENV === 'production',
+};
 
+app.use(cookieParser());
 app.use(express.json());
 app.use(express.static('public'));
 
@@ -28,7 +34,9 @@ app.post('/api/auth/create', async (req, res) => {
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
-  users.push({ email: normalizedEmail, password: hashedPassword });
+  const user = { email: normalizedEmail, password: hashedPassword, authToken: uuid.v4() };
+  users.push(user);
+  res.cookie(authCookieName, user.authToken, authCookieOptions);
 
   return res.status(201).json({ email: normalizedEmail });
 });
@@ -47,7 +55,22 @@ app.post('/api/auth/login', async (req, res) => {
     return res.status(401).json({ error: 'Incorrect email or password' });
   }
 
+  user.authToken = uuid.v4();
+  res.cookie(authCookieName, user.authToken, authCookieOptions);
+
   return res.json({ email: user.email });
+});
+
+// Revoke the current user's auth token
+app.post('/api/auth/logout', (req, res) => {
+  const authToken = req.cookies[authCookieName];
+  const user = users.find((candidate) => candidate.authToken === authToken);
+  if (user) {
+    user.authToken = null;
+  }
+
+  res.clearCookie(authCookieName, authCookieOptions);
+  return res.status(204).end();
 });
 
 // Add a game
