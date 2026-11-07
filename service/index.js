@@ -62,6 +62,26 @@ app.post('/api/games', (req, res) => {
   return res.status(201).json(game);
 });
 
+// Replace a game with the given ID
+app.put('/api/games/:id', (req, res) => {
+  const game = req.body;
+
+  if (!game || typeof game !== 'object' || Array.isArray(game)) {
+    return res.status(400).json({ error: 'Game data must be a JSON object' });
+  }
+  if (game.id === undefined || String(game.id) !== req.params.id) {
+    return res.status(400).json({ error: 'Game ID must match the request URL' });
+  }
+
+  const gameIndex = games.findIndex((existingGame) => String(existingGame.id) === req.params.id);
+  if (gameIndex === -1) {
+    return res.status(404).json({ error: 'Game not found' });
+  }
+
+  games[gameIndex] = game;
+  return res.json(game);
+});
+
 app.listen(port, () => {
   console.log(`Listening on port ${port}`);
 });
