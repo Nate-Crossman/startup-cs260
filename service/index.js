@@ -32,6 +32,22 @@ app.post('/api/auth/create', async (req, res) => {
   return res.status(201).json({ email: normalizedEmail });
 });
 
+app.post('/api/auth/login', async (req, res) => {
+  const { email, password } = req.body ?? {};
+
+  if (typeof email !== 'string' || !email.trim() || typeof password !== 'string' || !password) {
+    return res.status(400).json({ error: 'Email and password are required' });
+  }
+
+  const normalizedEmail = email.trim().toLowerCase();
+  const user = users.find((candidate) => candidate.email === normalizedEmail);
+  if (!user || !(await bcrypt.compare(password, user.password))) {
+    return res.status(401).json({ error: 'Incorrect email or password' });
+  }
+
+  return res.json({ email: user.email });
+});
+
 app.listen(port, () => {
   console.log(`Listening on port ${port}`);
 });
