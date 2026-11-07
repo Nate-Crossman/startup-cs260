@@ -14,6 +14,7 @@ const port = process.argv.length > 2 ? process.argv[2] : 4000;
 app.use(express.json());
 app.use(express.static('public'));
 
+// create a new user
 app.post('/api/auth/create', async (req, res) => {
   const { email, password } = req.body ?? {};
 
@@ -32,6 +33,7 @@ app.post('/api/auth/create', async (req, res) => {
   return res.status(201).json({ email: normalizedEmail });
 });
 
+// login existing user
 app.post('/api/auth/login', async (req, res) => {
   const { email, password } = req.body ?? {};
 
@@ -46,6 +48,18 @@ app.post('/api/auth/login', async (req, res) => {
   }
 
   return res.json({ email: user.email });
+});
+
+// Add a game
+app.post('/api/games', (req, res) => {
+  const game = req.body;
+
+  if (!game || typeof game !== 'object' || Array.isArray(game)) {
+    return res.status(400).json({ error: 'Game data must be a JSON object' });
+  }
+
+  games.push(game);
+  return res.status(201).json(game);
 });
 
 app.listen(port, () => {
