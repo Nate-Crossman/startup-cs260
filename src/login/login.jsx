@@ -5,25 +5,42 @@ export function Login({ onLogin }) {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
 
     const formData = new FormData(event.currentTarget);
     const username = formData.get('email').trim();
     const password = formData.get('password');
     const action = event.nativeEvent.submitter?.value ?? 'login';
-    const users = JSON.parse(localStorage.getItem('users') ?? '{}');
 
     if (action === 'create') {
-      if (Object.hasOwn(users, username)) {
-        setError('Username already taken');
-        return;
-      }
+      setError('');
+      try {
+        const response = await fetch('/api/auth/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: username, password }),
+        });
+        const result = await response.json();
 
-      // Passwords should be hashed on the server before being stored.
-      users[username] = password;
-      localStorage.setItem('users', JSON.stringify(users));
-    } else if (users[username] !== password) {
+        if (!response.ok) {
+          setError(result.error ?? 'Unable to create account');
+          return;
+        }
+
+        const user = { email: result.email };
+        localStorage.setItem('user', JSON.stringify(user));
+        onLogin(user);
+        navigate('/games');
+      } catch {
+        setError('Unable to connect to the server');
+      }
+      return;
+    }
+
+    const users = JSON.parse(localStorage.getItem('users') ?? '{}');
+
+    if (users[username] !== password) {
       setError('Incorrect password');
       return;
     }
