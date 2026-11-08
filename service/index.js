@@ -61,6 +61,17 @@ app.post('/api/auth/login', async (req, res) => {
   return res.json({ email: user.email });
 });
 
+// Verify the current auth token
+app.get('/api/auth/me', (req, res) => {
+  const authToken = req.cookies[authCookieName];
+  const user = users.find((candidate) => candidate.authToken === authToken);
+  if (!user) {
+    return res.status(401).json({ error: 'Authentication required' });
+  }
+
+  return res.json({ email: user.email });
+});
+
 // Revoke the current user's auth token
 app.post('/api/auth/logout', (req, res) => {
   const authToken = req.cookies[authCookieName];

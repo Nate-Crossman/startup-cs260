@@ -18,6 +18,22 @@ const defaultGames = [
 ];
 const MAX_PLAYERS = 8;
 
+async function getAuthenticatedUser() {
+  const response = await fetch('/api/auth/me');
+  if (response.status === 401) {
+    return null;
+  }
+  if (!response.ok) {
+    throw new Error('Unable to verify authentication');
+  }
+
+  const user = await response.json();
+  if (typeof user.email !== 'string' || !user.email) {
+    throw new Error('Authentication response did not include a user email');
+  }
+  return user;
+}
+
 function loadGames() {
   const savedGames = JSON.parse(localStorage.getItem('games') ?? '[]');
   const savedIds = new Set(savedGames.map((game) => game.id));
@@ -35,31 +51,35 @@ export function Games() {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  function createGame() {
-    const user = JSON.parse(localStorage.getItem('user') ?? 'null');
-    if (!user?.email) {
-      setError('Sign in to create a game');
-      return;
-    }
-
-    const baseName = `${user.email}'s game`;
-    let name = baseName;
-    let suffix = 2;
-    while (games.some((game) => game.name === name)) {
-      name = `${baseName}#${suffix}`;
-      suffix += 1;
-    }
-
-    const game = {
-      id: Date.now(),
-      name,
-      users: [{ username: user.email, score: 0, response: '' }],
-      judge: user.email,
-    };
-    const updatedGames = [...games, game];
-    localStorage.setItem('games', JSON.stringify(updatedGames));
-    setGames(updatedGames);
+  async function createGame() {
     setError('');
+    try {
+      const user = await getAuthenticatedUser();
+      if (!user) {
+        setError('Sign in to create a game');
+        return;
+      }
+
+      const baseName = `${user.email}'s game`;
+      let name = baseName;
+      let suffix = 2;
+      while (games.some((game) => game.name === name)) {
+        name = `${baseName}#${suffix}`;
+        suffix += 1;
+      }
+
+      const game = {
+        id: Date.now(),
+        name,
+        users: [{ username: user.email, score: 0, response: '' }],
+        judge: user.email,
+      };
+      const updatedGames = [...games, game];
+      localStorage.setItem('games', JSON.stringify(updatedGames));
+      setGames(updatedGames);
+    } catch {
+      setError('Unable to verify your sign-in. Please try again.');
+    }
   }
 
   function resetGames() {
@@ -69,40 +89,44 @@ export function Games() {
     setError('');
   }
 
-  function joinGame(game) {
-    const user = JSON.parse(localStorage.getItem('user') ?? 'null');
-    if (!user?.email) {
-      setError('Sign in to join a game');
-      return;
-    }
-
-    const currentGame = JSON.parse(localStorage.getItem('currentGame') ?? 'null');
-    const savedGames = JSON.parse(localStorage.getItem('games') ?? '[]');
-    const joiningExistingGame = game.users.some((player) => player.username === user.email);
-    if (!joiningExistingGame && game.users.length >= MAX_PLAYERS) {
-      setError('This game is full');
-      return;
-    }
-
-    const updatedGames = savedGames.map((savedGame) => {
-      if (currentGame && savedGame.id === currentGame.id && currentGame.id !== game.id) {
-        return removePlayerFromGame(savedGame, user.email);
-      }
-      return savedGame;
-    });
-    const targetGame = updatedGames.find((savedGame) => savedGame.id === game.id) ?? game;
-    const joinedGame = targetGame.users.some((player) => player.username === user.email)
-      ? targetGame
-      : { ...targetGame, users: [...targetGame.users, { username: user.email, score: 0, response: '' }] };
-    const finalGames = updatedGames.some((savedGame) => savedGame.id === game.id)
-      ? updatedGames.map((savedGame) => savedGame.id === game.id ? joinedGame : savedGame)
-      : [...updatedGames, joinedGame];
-
-    localStorage.setItem('games', JSON.stringify(finalGames));
-    localStorage.setItem('currentGame', JSON.stringify(joinedGame));
-    setGames(finalGames);
+  async function joinGame(game) {
     setError('');
-    navigate('/play');
+    try {
+      const user = await getAuthenticatedUser();
+      if (!user) {
+        setError('Sign in to join a game');
+        return;
+      }
+
+      const currentGame = JSON.parse(localStorage.getItem('currentGame') ?? 'null');
+      const savedGames = JSON.parse(localStorage.getItem('games') ?? '[]');
+      const joiningExistingGame = game.users.some((player) => player.username === user.email);
+      if (!joiningExistingGame && game.users.length >= MAX_PLAYERS) {
+        setError('This game is full');
+        return;
+      }
+
+      const updatedGames = savedGames.map((savedGame) => {
+        if (currentGame && savedGame.id === currentGame.id && currentGame.id !== game.id) {
+          return removePlayerFromGame(savedGame, user.email);
+        }
+        return savedGame;
+      });
+      const targetGame = updatedGames.find((savedGame) => savedGame.id === game.id) ?? game;
+      const joinedGame = targetGame.users.some((player) => player.username === user.email)
+        ? targetGame
+        : { ...targetGame, users: [...targetGame.users, { username: user.email, score: 0, response: '' }] };
+      const finalGames = updatedGames.some((savedGame) => savedGame.id === game.id)
+        ? updatedGames.map((savedGame) => savedGame.id === game.id ? joinedGame : savedGame)
+        : [...updatedGames, joinedGame];
+
+      localStorage.setItem('games', JSON.stringify(finalGames));
+      localStorage.setItem('currentGame', JSON.stringify(joinedGame));
+      setGames(finalGames);
+      navigate('/play');
+    } catch {
+      setError('Unable to verify your sign-in. Please try again.');
+    }
   }
 
   return (
