@@ -6,6 +6,7 @@ export function Play({ user: currentUser }) {
   const navigate = useNavigate();
   const [game, setGame] = useState(null);
   const [isLoadingGame, setIsLoadingGame] = useState(Boolean(currentUser?.email));
+  const [isGettingSuggestion, setIsGettingSuggestion] = useState(false);
   const [error, setError] = useState('');
   const [response, setResponse] = useState('');
   const [roundResult, setRoundResult] = useState(null);
@@ -229,9 +230,27 @@ export function Play({ user: currentUser }) {
     }
   }
 
-  function getSuggestion() {
-    // This function will call an API to generate a suggestion.
-    setResponse('Suggestion text');
+  async function getSuggestion() {
+    setError('');
+    setIsGettingSuggestion(true);
+    try {
+      const suggestionResponse = await fetch(
+        'https://uselessfacts.jsph.pl/api/v2/facts/random?language=en',
+      );
+      if (!suggestionResponse.ok) {
+        throw new Error(`Fact service returned ${suggestionResponse.status}`);
+      }
+
+      const fact = await suggestionResponse.json();
+      if (typeof fact.text !== 'string' || !fact.text.trim()) {
+        throw new Error('Fact service returned no fact text');
+      }
+      setResponse(fact.text);
+    } catch {
+      setError('Unable to get a random fact. Please try again.');
+    } finally {
+      setIsGettingSuggestion(false);
+    }
   }
 
   async function leaveGame() {
@@ -353,7 +372,14 @@ export function Play({ user: currentUser }) {
           {error && <p className="text-danger mt-2">{error}</p>}
           <div className="row mt-3">
             <div className="col-12 col-md-6">
-              <button type="button" className="btn btn-secondary w-100" onClick={getSuggestion}>Generate an Idea</button>
+              <button
+                type="button"
+                className="btn btn-secondary w-100"
+                onClick={getSuggestion}
+                disabled={isGettingSuggestion}
+              >
+                {isGettingSuggestion ? 'Getting an idea...' : 'Generate an Idea'}
+              </button>
             </div>
           </div>
         </section>
