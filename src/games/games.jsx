@@ -53,32 +53,50 @@ export function Games() {
 
   async function createGame() {
     setError('');
+    let user;
     try {
-      const user = await getAuthenticatedUser();
-      if (!user) {
-        setError('Sign in to create a game');
+      user = await getAuthenticatedUser();
+    } catch {
+      setError('Unable to verify your sign-in. Please try again.');
+      return;
+    }
+    if (!user) {
+      setError('Sign in to create a game');
+      return;
+    }
+
+    const baseName = `${user.email}'s game`;
+    let name = baseName;
+    let suffix = 2;
+    while (games.some((game) => game.name === name)) {
+      name = `${baseName}#${suffix}`;
+      suffix += 1;
+    }
+
+    const game = {
+      id: Date.now(),
+      name,
+      users: [{ username: user.email, score: 0, response: '' }],
+      judge: user.email,
+    };
+
+    try {
+      const response = await fetch('/api/games', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(game),
+      });
+      const createdGame = await response.json();
+      if (!response.ok) {
+        setError(createdGame.error ?? 'Unable to create game');
         return;
       }
 
-      const baseName = `${user.email}'s game`;
-      let name = baseName;
-      let suffix = 2;
-      while (games.some((game) => game.name === name)) {
-        name = `${baseName}#${suffix}`;
-        suffix += 1;
-      }
-
-      const game = {
-        id: Date.now(),
-        name,
-        users: [{ username: user.email, score: 0, response: '' }],
-        judge: user.email,
-      };
-      const updatedGames = [...games, game];
+      const updatedGames = [...games, createdGame];
       localStorage.setItem('games', JSON.stringify(updatedGames));
       setGames(updatedGames);
     } catch {
-      setError('Unable to verify your sign-in. Please try again.');
+      setError('Unable to create game. Please try again.');
     }
   }
 
