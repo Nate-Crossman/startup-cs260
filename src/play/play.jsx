@@ -176,7 +176,7 @@ export function Play({ user: currentUser }) {
       return undefined;
     }
 
-    const intervalId = setInterval(() => {
+    const timeoutId = setTimeout(() => {
       const candidates = game.users.filter(
         (player) => player.username !== game.judge && player.response?.trim(),
       );
@@ -184,13 +184,12 @@ export function Play({ user: currentUser }) {
         return;
       }
 
-      clearInterval(intervalId);
       const winner = candidates[Math.floor(Math.random() * candidates.length)];
       handleVote(winner.username, true);
     }, 5000);
 
-    return () => clearInterval(intervalId);
-  }, [allPlayersSubmitted, currentUser?.email, game?.judge, game?.users]);
+    return () => clearTimeout(timeoutId);
+  }, [allPlayersSubmitted, currentUser?.email, game?.judge]);
 
   if (!game) {
     return (
