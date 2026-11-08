@@ -129,6 +129,11 @@ app.post('/api/games', (req, res) => {
   return res.status(201).json(game);
 });
 
+// Get all games
+app.get('/api/games', (req, res) => {
+  return res.json(games);
+});
+
 // Get a game by ID
 app.get('/api/games/:id', (req, res) => {
   const game = games.find((existingGame) => String(existingGame.id) === req.params.id);
