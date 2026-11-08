@@ -34,11 +34,16 @@ app.post('/api/auth/create', async (req, res) => {
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
-  const user = { email: normalizedEmail, password: hashedPassword, authToken: uuid.v4() };
+  const user = {
+    email: normalizedEmail,
+    password: hashedPassword,
+    authToken: uuid.v4(),
+    currentGameId: null,
+  };
   users.push(user);
   res.cookie(authCookieName, user.authToken, authCookieOptions);
 
-  return res.status(201).json({ email: normalizedEmail });
+  return res.status(201).json({ email: normalizedEmail, currentGameId: user.currentGameId });
 });
 
 // login existing user
@@ -58,7 +63,7 @@ app.post('/api/auth/login', async (req, res) => {
   user.authToken = uuid.v4();
   res.cookie(authCookieName, user.authToken, authCookieOptions);
 
-  return res.json({ email: user.email });
+  return res.json({ email: user.email, currentGameId: user.currentGameId });
 });
 
 // Verify the current auth token
@@ -69,7 +74,35 @@ app.get('/api/auth/me', (req, res) => {
     return res.status(401).json({ error: 'Authentication required' });
   }
 
-  return res.json({ email: user.email });
+  return res.json({ email: user.email, currentGameId: user.currentGameId });
+});
+
+// Set or clear the authenticated user's current game
+app.put('/api/auth/current-game', (req, res) => {
+  const authToken = req.cookies[authCookieName];
+  const user = users.find((candidate) => candidate.authToken === authToken);
+  if (!user) {
+    return res.status(401).json({ error: 'Authentication required' });
+  }
+
+  const { currentGameId } = req.body ?? {};
+  if (
+    currentGameId !== null
+    && !(typeof currentGameId === 'string' && currentGameId.length > 0)
+    && !(typeof currentGameId === 'number' && Number.isFinite(currentGameId))
+  ) {
+    return res.status(400).json({ error: 'currentGameId must be a game ID or null' });
+  }
+
+  if (
+    currentGameId !== null
+    && !games.some((game) => String(game.id) === String(currentGameId))
+  ) {
+    return res.status(404).json({ error: 'Game not found' });
+  }
+
+  user.currentGameId = currentGameId;
+  return res.json({ email: user.email, currentGameId: user.currentGameId });
 });
 
 // Revoke the current user's auth token
