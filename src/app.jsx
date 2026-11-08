@@ -45,10 +45,26 @@ export default function App() {
 
 function Header({ user, onLogout }) {
   const navigate = useNavigate();
+  const [logoutError, setLogoutError] = useState('');
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-  function handleLogout() {
-    onLogout();
-    navigate('/');
+  async function handleLogout() {
+    setLogoutError('');
+    setIsLoggingOut(true);
+
+    try {
+      const response = await fetch('/api/auth/logout', { method: 'POST' });
+      if (!response.ok) {
+        throw new Error('Logout request failed');
+      }
+
+      onLogout();
+      navigate('/');
+    } catch {
+      setLogoutError('Unable to log out. Please try again.');
+    } finally {
+      setIsLoggingOut(false);
+    }
   }
 
   return (
@@ -69,9 +85,12 @@ function Header({ user, onLogout }) {
       {user?.email && (
         <div className="d-flex justify-content-between align-items-baseline small">
           <p className="mb-0">Signed in as {user.email}</p>
-          <button type="button" className="nav-link p-0 text-decoration-underline" style={{ fontSize: 'inherit' }} onClick={handleLogout}>Logout</button>
+          <button type="button" className="nav-link p-0 text-decoration-underline" style={{ fontSize: 'inherit' }} onClick={handleLogout} disabled={isLoggingOut}>
+            {isLoggingOut ? 'Logging out...' : 'Logout'}
+          </button>
         </div>
       )}
+      {logoutError && <p className="text-danger small mb-0" role="alert">{logoutError}</p>}
       <hr />
     </header>
   );
