@@ -129,6 +129,15 @@ app.post('/api/games', (req, res) => {
   return res.status(201).json(game);
 });
 
+// Clear all games for development
+app.delete('/api/games', (req, res) => {
+  games = [];
+  users.forEach((user) => {
+    user.currentGameId = null;
+  });
+  return res.status(204).end();
+});
+
 // Get all games
 app.get('/api/games', (req, res) => {
   return res.json(games);
