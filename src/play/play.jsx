@@ -326,7 +326,7 @@ export function Play({ user: currentUser }) {
             ? `The Judge says: ${judgeResponse}`
             : waitingForJudgePrompt
               ? 'Waiting for the judge to make the prompt'
-              : 'The Judge says: Wait for the judge to enter their Prompt!'}
+              : "You're the Judge! Submit a prompt!"}
         </p>
       </section>
 
