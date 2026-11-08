@@ -1,6 +1,7 @@
 const cookieParser = require('cookie-parser');
 const bcrypt = require('bcryptjs');
 const express = require('express');
+const path = require('path');
 const uuid = require('uuid');
 const app = express();
 
@@ -18,7 +19,7 @@ const authCookieOptions = {
 
 app.use(cookieParser());
 app.use(express.json());
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, '..', 'dist')));
 
 // create a new user
 app.post('/api/auth/create', async (req, res) => {
@@ -192,6 +193,18 @@ app.put('/api/games/:id', (req, res) => {
 
   games[gameIndex] = game;
   return res.json(game);
+});
+
+app.get('/{*path}', (req, res, next) => {
+  if (req.path.startsWith('/api/')) {
+    return next();
+  }
+
+  return res.sendFile(path.join(__dirname, '..', 'dist', 'index.html'), (error) => {
+    if (error) {
+      next(error);
+    }
+  });
 });
 
 app.listen(port, () => {
