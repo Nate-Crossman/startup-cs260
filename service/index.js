@@ -96,6 +96,16 @@ app.post('/api/games', (req, res) => {
   return res.status(201).json(game);
 });
 
+// Get a game by ID
+app.get('/api/games/:id', (req, res) => {
+  const game = games.find((existingGame) => String(existingGame.id) === req.params.id);
+  if (!game) {
+    return res.status(404).json({ error: 'Game not found' });
+  }
+
+  return res.json(game);
+});
+
 // Replace a game with the given ID
 app.put('/api/games/:id', (req, res) => {
   const game = req.body;
