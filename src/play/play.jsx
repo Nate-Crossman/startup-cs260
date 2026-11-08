@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { removePlayerFromGame } from '../games/game-utils';
 
-export function Play() {
+export function Play({ user: currentUser }) {
   const navigate = useNavigate();
   const [game, setGame] = useState(() => JSON.parse(localStorage.getItem('currentGame') ?? 'null'));
   const [error, setError] = useState('');
@@ -11,7 +11,6 @@ export function Play() {
   const allPlayersSubmitted = Boolean(game?.users.length)
     && game.users.every((player) => player.response?.trim());
   const judgeResponse = game?.users.find((player) => player.username === game.judge)?.response;
-  const currentUser = JSON.parse(localStorage.getItem('user') ?? 'null');
   const currentPlayer = game?.users.find((player) => player.username === currentUser?.email);
   const currentPlayerSubmitted = Boolean(currentPlayer?.response?.trim());
   const isJudge = currentUser?.email === game?.judge;
@@ -115,12 +114,11 @@ export function Play() {
     event.preventDefault();
 
     const response = String(new FormData(event.currentTarget).get('response') ?? '').trim();
-    const user = JSON.parse(localStorage.getItem('user') ?? 'null');
-    if (!user?.email) {
+    if (!currentUser?.email) {
       setError('Sign in to submit a response');
       return;
     }
-    if (!game.users.some((player) => player.username === user.email)) {
+    if (!game.users.some((player) => player.username === currentUser.email)) {
       setError('You are not a player in this game');
       return;
     }
@@ -128,7 +126,7 @@ export function Play() {
     const updatedGame = {
       ...game,
       users: game.users.map((player) => (
-        player.username === user.email ? { ...player, response } : player
+        player.username === currentUser.email ? { ...player, response } : player
       )),
     };
     const games = JSON.parse(localStorage.getItem('games') ?? '[]');
@@ -148,8 +146,7 @@ export function Play() {
   }
 
   function leaveGame() {
-    const user = JSON.parse(localStorage.getItem('user') ?? 'null');
-    const updatedGame = removePlayerFromGame(game, user?.email);
+    const updatedGame = removePlayerFromGame(game, currentUser?.email);
     const savedGames = JSON.parse(localStorage.getItem('games') ?? '[]');
     const updatedGames = savedGames.map((savedGame) => (
       savedGame.id === updatedGame.id ? updatedGame : savedGame

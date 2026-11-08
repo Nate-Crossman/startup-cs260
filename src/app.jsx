@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './app.css';
 
@@ -9,13 +9,48 @@ import { Games } from './games/games';
 import { HowToPlay } from './how-to-play/how-to-play';
 
 export default function App() {
-  const [user, setUser] = useState(() => {
-    const storedUser = localStorage.getItem('user');
-    return storedUser ? JSON.parse(storedUser) : null;
-  });
+  const [user, setUser] = useState(null);
+  const [isCheckingSession, setIsCheckingSession] = useState(true);
+  const [sessionError, setSessionError] = useState('');
+
+  useEffect(() => {
+    let active = true;
+
+    async function restoreSession() {
+      try {
+        const response = await fetch('/api/auth/me');
+        if (response.status === 401) {
+          return;
+        }
+        if (!response.ok) {
+          throw new Error('Unable to verify authentication');
+        }
+
+        const authenticatedUser = await response.json();
+        if (typeof authenticatedUser.email !== 'string' || !authenticatedUser.email) {
+          throw new Error('Authentication response did not include a user email');
+        }
+        if (active) {
+          setUser({ email: authenticatedUser.email });
+        }
+      } catch {
+        if (active) {
+          setSessionError('Unable to verify your sign-in. Please refresh and try again.');
+        }
+      } finally {
+        if (active) {
+          setIsCheckingSession(false);
+        }
+      }
+    }
+
+    restoreSession();
+    return () => {
+      active = false;
+    };
+  }, []);
 
   function handleLogout() {
-    localStorage.removeItem('user');
     localStorage.removeItem('currentGame');
     setUser(null);
   }
@@ -24,9 +59,10 @@ export default function App() {
     <BrowserRouter>
     <div className="body bg-light text-dark">
     <Header user={user} onLogout={handleLogout} />
+    {sessionError && <p className="container text-danger" role="alert">{sessionError}</p>}
     <Routes>
-        <Route path='/' element={<Login onLogin={setUser} />} exact />
-        <Route path='/play' element={<Play />} />
+        <Route path='/' element={isCheckingSession ? <p>Checking sign-in...</p> : <Login onLogin={setUser} />} exact />
+        <Route path='/play' element={isCheckingSession ? <p>Checking sign-in...</p> : <Play user={user} />} />
         <Route path='/games' element={<Games />} />
         <Route path='/how-to-play' element={<HowToPlay />} />
         <Route path='*' element={<NotFound />} />

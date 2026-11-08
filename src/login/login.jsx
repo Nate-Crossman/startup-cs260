@@ -28,7 +28,6 @@ export function Login({ onLogin }) {
       }
 
       const user = { email: result.email };
-      localStorage.setItem('user', JSON.stringify(user));
       onLogin(user);
       navigate('/games');
     } catch {
