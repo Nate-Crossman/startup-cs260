@@ -1,6 +1,7 @@
 const cookieParser = require('cookie-parser');
 const bcrypt = require('bcryptjs');
 const express = require('express');
+const fs = require('fs');
 const path = require('path');
 const uuid = require('uuid');
 const app = express();
@@ -11,6 +12,9 @@ let users = []
 let games = []
 
 const port = process.argv.length > 2 ? process.argv[2] : 4000;
+const frontendDirectory = fs.existsSync(path.join(__dirname, 'public', 'index.html'))
+  ? path.join(__dirname, 'public')
+  : path.join(__dirname, '..', 'dist');
 const authCookieOptions = {
   httpOnly: true,
   sameSite: 'lax',
@@ -19,7 +23,7 @@ const authCookieOptions = {
 
 app.use(cookieParser());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, '..', 'dist')));
+app.use(express.static(frontendDirectory));
 
 // create a new user
 app.post('/api/auth/create', async (req, res) => {
@@ -200,7 +204,7 @@ app.get('/{*path}', (req, res, next) => {
     return next();
   }
 
-  return res.sendFile(path.join(__dirname, '..', 'dist', 'index.html'), (error) => {
+  return res.sendFile(path.join(frontendDirectory, 'index.html'), (error) => {
     if (error) {
       next(error);
     }
