@@ -108,14 +108,14 @@ For this deliverable I did the following. I checked the box `[x]` and added a de
 
 For this deliverable I did the following. I checked the box `[x]` and added a description for things I completed.
 
-- [ ] I completed the prerequisites for this deliverable (Simon deployed, GitHub link, Git commits)
-- [ ] **Node.js/Express HTTP service** - I did not complete this part of the deliverable.
-- [ ] **Static middleware for frontend** - I did not complete this part of the deliverable.
-- [ ] **Calls to third party endpoints** - I did not complete this part of the deliverable.
-- [ ] **Backend service endpoints** - I did not complete this part of the deliverable.
-- [ ] **Frontend calls service endpoints** - I did not complete this part of the deliverable.
-- [ ] **Supports registration, login, logout, and restricted endpoint** - I did not complete this part of the deliverable.
-- [ ] **Uses BCrypt to hash passwords** - I did not complete this part of the deliverable.
+- [X] I completed the prerequisites for this deliverable (Simon deployed, GitHub link, Git commits).
+- [X] **Node.js/Express HTTP service** - `service/index.js` runs the Express server.
+- [X] **Static middleware for frontend** - Express serves the Vite build and supports app routes.
+- [X] **Calls to third party endpoints** - Play uses Random Useless Fact Generator API to fetch a random fact for prompt ideas.
+- [X] **Backend service endpoints** - The service handles users, authentication, and games.They can be added, removed, modified, and such.
+- [X] **Frontend calls service endpoints** - The frontend uses the service instead of local Storage for auth and game actions.
+- [X] **Supports registration, login, logout, and restricted endpoint** - Users can register, log in, log out, and access authenticated routes.
+- [X] **Uses BCrypt to hash passwords** - Passwords are hashed with `bcryptjs`.
 
 ## 🚀 DB deliverable
 
