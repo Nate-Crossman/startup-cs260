@@ -13,43 +13,27 @@ export function Login({ onLogin }) {
     const password = formData.get('password');
     const action = event.nativeEvent.submitter?.value ?? 'login';
 
-    if (action === 'create') {
-      setError('');
-      try {
-        const response = await fetch('/api/auth/create', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: username, password }),
-        });
-        const result = await response.json();
-
-        if (!response.ok) {
-          setError(result.error ?? 'Unable to create account');
-          return;
-        }
-
-        const user = { email: result.email };
-        localStorage.setItem('user', JSON.stringify(user));
-        onLogin(user);
-        navigate('/games');
-      } catch {
-        setError('Unable to connect to the server');
-      }
-      return;
-    }
-
-    const users = JSON.parse(localStorage.getItem('users') ?? '{}');
-
-    if (users[username] !== password) {
-      setError('Incorrect password');
-      return;
-    }
-
-    const user = { email: username };
-    localStorage.setItem('user', JSON.stringify(user));
-    onLogin(user);
     setError('');
-    navigate('/games');
+    try {
+      const response = await fetch(`/api/auth/${action === 'create' ? 'create' : 'login'}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: username, password }),
+      });
+      const result = await response.json();
+
+      if (!response.ok) {
+        setError(result.error ?? (action === 'create' ? 'Unable to create account' : 'Unable to log in'));
+        return;
+      }
+
+      const user = { email: result.email };
+      localStorage.setItem('user', JSON.stringify(user));
+      onLogin(user);
+      navigate('/games');
+    } catch {
+      setError('Unable to connect to the server');
+    }
   }
 
   return (
