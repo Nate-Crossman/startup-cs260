@@ -105,6 +105,27 @@ app.put('/api/auth/current-game', (req, res) => {
   return res.json({ email: user.email, currentGameId: user.currentGameId });
 });
 
+// Get the authenticated user's current game
+app.get('/api/auth/current-game', (req, res) => {
+  const authToken = req.cookies[authCookieName];
+  const user = users.find((candidate) => candidate.authToken === authToken);
+  if (!user) {
+    return res.status(401).json({ error: 'Authentication required' });
+  }
+
+  if (user.currentGameId === null) {
+    return res.json(null);
+  }
+
+  const game = games.find((candidate) => String(candidate.id) === String(user.currentGameId));
+  if (!game) {
+    user.currentGameId = null;
+    return res.json(null);
+  }
+
+  return res.json(game);
+});
+
 // Revoke the current user's auth token
 app.post('/api/auth/logout', (req, res) => {
   const authToken = req.cookies[authCookieName];

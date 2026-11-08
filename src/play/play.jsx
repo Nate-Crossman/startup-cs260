@@ -4,7 +4,8 @@ import { removePlayerFromGame } from '../games/game-utils';
 
 export function Play({ user: currentUser }) {
   const navigate = useNavigate();
-  const [game, setGame] = useState(() => JSON.parse(localStorage.getItem('currentGame') ?? 'null'));
+  const [game, setGame] = useState(null);
+  const [isLoadingGame, setIsLoadingGame] = useState(Boolean(currentUser?.email));
   const [error, setError] = useState('');
   const [response, setResponse] = useState('');
   const [roundResult, setRoundResult] = useState(null);
@@ -23,8 +24,67 @@ export function Play({ user: currentUser }) {
   const waitingForJudgePrompt = !isJudge && !judgeResponse?.trim();
   const waitingForJudgeVote = allPlayersSubmitted && !isJudge;
 
+  async function saveGame(updatedGame) {
+    const response = await fetch(`/api/games/${encodeURIComponent(String(updatedGame.id))}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updatedGame),
+    });
+    const savedGame = await response.json();
+    if (!response.ok) {
+      throw new Error(savedGame.error ?? 'Unable to save game');
+    }
+    return savedGame;
+  }
+
   useEffect(() => {
-    if (!game) {
+    let active = true;
+    if (!currentUser?.email) {
+      setGame(null);
+      setIsLoadingGame(false);
+      return () => {
+        active = false;
+      };
+    }
+
+    setIsLoadingGame(true);
+    async function loadCurrentGame() {
+      try {
+        const response = await fetch('/api/auth/current-game');
+        if (response.status === 401) {
+          if (active) {
+            setGame(null);
+          }
+          return;
+        }
+        if (!response.ok) {
+          throw new Error('Unable to load current game');
+        }
+
+        const currentGame = await response.json();
+        if (active) {
+          setGame(currentGame);
+        }
+      } catch {
+        if (active) {
+          setError('Unable to load your current game. Please try again.');
+          setGame(null);
+        }
+      } finally {
+        if (active) {
+          setIsLoadingGame(false);
+        }
+      }
+    }
+
+    loadCurrentGame();
+    return () => {
+      active = false;
+    };
+  }, [currentUser?.email]);
+
+  useEffect(() => {
+    if (!game || !currentUser?.email) {
       return undefined;
     }
 
@@ -35,50 +95,80 @@ export function Play({ user: currentUser }) {
       'Help I\'m trapped in the filler text!',
     ];
     let responseIndex = 0;
+    let active = true;
 
-    const intervalId = setInterval(() => {
-      const currentGame = JSON.parse(localStorage.getItem('currentGame') ?? 'null');
-      if (!currentGame || currentGame.id !== game.id) {
-        clearInterval(intervalId);
-        return;
+    const intervalId = setInterval(async () => {
+      try {
+        const response = await fetch(`/api/games/${encodeURIComponent(String(game.id))}`);
+        if (response.status === 404) {
+          await fetch('/api/auth/current-game', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ currentGameId: null }),
+          });
+          if (active) {
+            setGame(null);
+          }
+          return;
+        }
+        if (!response.ok) {
+          throw new Error('Unable to refresh game');
+        }
+
+        const currentGame = await response.json();
+        const currentJudgeResponse = currentGame.users.find(
+          (gameUser) => gameUser.username === currentGame.judge,
+        )?.response;
+        if (!currentJudgeResponse?.trim() && currentUser.email === currentGame.judge) {
+          if (active) {
+            setGame(currentGame);
+          }
+          return;
+        }
+
+        const player = !currentJudgeResponse?.trim()
+          ? currentGame.users.find((gameUser) => gameUser.username === currentGame.judge)
+          : currentGame.users.find(
+            (gameUser) => gameUser.username !== currentUser.email && !gameUser.response,
+          );
+        if (!player) {
+          if (active) {
+            setGame(currentGame);
+          }
+          return;
+        }
+
+        const updatedGame = {
+          ...currentGame,
+          users: currentGame.users.map((gameUser) => (
+            gameUser.username === player.username
+              ? { ...gameUser, response: suggestions[responseIndex++ % suggestions.length] }
+              : gameUser
+          )),
+        };
+        const updateResponse = await fetch(`/api/games/${encodeURIComponent(String(game.id))}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updatedGame),
+        });
+        if (!updateResponse.ok) {
+          throw new Error('Unable to save game');
+        }
+        const savedGame = await updateResponse.json();
+        if (active) {
+          setGame(savedGame);
+        }
+      } catch {
+        if (active) {
+          setError('Unable to refresh game state. Please try again.');
+        }
       }
-
-      const currentJudgeResponse = currentGame.users.find(
-        (gameUser) => gameUser.username === currentGame.judge,
-      )?.response;
-      if (!currentJudgeResponse?.trim() && currentUser?.email === currentGame.judge) {
-        return;
-      }
-
-      const player = !currentJudgeResponse?.trim()
-        ? currentGame.users.find((gameUser) => gameUser.username === currentGame.judge)
-        : currentGame.users.find(
-          (gameUser) => gameUser.username !== currentUser?.email && !gameUser.response,
-        );
-      if (!player) {
-        clearInterval(intervalId);
-        return;
-      }
-
-      const updatedGame = {
-        ...currentGame,
-        users: currentGame.users.map((gameUser) => (
-          gameUser.username === player.username
-            ? { ...gameUser, response: suggestions[responseIndex++ % suggestions.length] }
-            : gameUser
-        )),
-      };
-      const savedGames = JSON.parse(localStorage.getItem('games') ?? '[]');
-      const updatedGames = savedGames.map((savedGame) => (
-        savedGame.id === updatedGame.id ? updatedGame : savedGame
-      ));
-
-      localStorage.setItem('currentGame', JSON.stringify(updatedGame));
-      localStorage.setItem('games', JSON.stringify(updatedGames));
-      setGame(updatedGame);
     }, 2000);
 
-    return () => clearInterval(intervalId);
+    return () => {
+      active = false;
+      clearInterval(intervalId);
+    };
   }, [game?.id, judgeResponse, currentUser?.email]);
 
   useEffect(() => {
@@ -105,12 +195,14 @@ export function Play({ user: currentUser }) {
   if (!game) {
     return (
       <main>
-        You're not in a game. <Link to="/games">Join here</Link>
+        {isLoadingGame
+          ? 'Loading your game...'
+          : <>You're not in a game. <Link to="/games">Join here</Link></>}
       </main>
     );
   }
 
-  function handlePromptSubmit(event) {
+  async function handlePromptSubmit(event) {
     event.preventDefault();
 
     const response = String(new FormData(event.currentTarget).get('response') ?? '').trim();
@@ -129,15 +221,13 @@ export function Play({ user: currentUser }) {
         player.username === currentUser.email ? { ...player, response } : player
       )),
     };
-    const games = JSON.parse(localStorage.getItem('games') ?? '[]');
-    const updatedGames = games.map((savedGame) => (
-      savedGame.id === updatedGame.id ? updatedGame : savedGame
-    ));
-
-    localStorage.setItem('currentGame', JSON.stringify(updatedGame));
-    localStorage.setItem('games', JSON.stringify(updatedGames));
-    setGame(updatedGame);
-    setError('');
+    try {
+      const savedGame = await saveGame(updatedGame);
+      setGame(savedGame);
+      setError('');
+    } catch {
+      setError('Unable to submit your response. Please try again.');
+    }
   }
 
   function getSuggestion() {
@@ -145,21 +235,27 @@ export function Play({ user: currentUser }) {
     setResponse('Suggestion text');
   }
 
-  function leaveGame() {
+  async function leaveGame() {
     const updatedGame = removePlayerFromGame(game, currentUser?.email);
-    const savedGames = JSON.parse(localStorage.getItem('games') ?? '[]');
-    const updatedGames = savedGames.map((savedGame) => (
-      savedGame.id === updatedGame.id ? updatedGame : savedGame
-    ));
-
-    localStorage.setItem('games', JSON.stringify(updatedGames));
-    localStorage.removeItem('currentGame');
-    setGame(null);
-    setRoundResult(null);
-    navigate('/games');
+    try {
+      await saveGame(updatedGame);
+      const response = await fetch('/api/auth/current-game', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ currentGameId: null }),
+      });
+      if (!response.ok) {
+        throw new Error('Unable to clear current game');
+      }
+      setGame(null);
+      setRoundResult(null);
+      navigate('/games');
+    } catch {
+      setError('Unable to leave game. Please try again.');
+    }
   }
 
-  function handleVote(winnerUsername, automated = false) {
+  async function handleVote(winnerUsername, automated = false) {
     if ((!automated && currentUser?.email !== game.judge) || !allPlayersSubmitted) {
       return;
     }
@@ -189,16 +285,14 @@ export function Play({ user: currentUser }) {
         response: '',
       })),
     };
-    const savedGames = JSON.parse(localStorage.getItem('games') ?? '[]');
-    const updatedGames = savedGames.map((savedGame) => (
-      savedGame.id === updatedGame.id ? updatedGame : savedGame
-    ));
-
-    localStorage.setItem('currentGame', JSON.stringify(updatedGame));
-    localStorage.setItem('games', JSON.stringify(updatedGames));
-    setGame(updatedGame);
-    setResponse('');
-    setError('');
+    try {
+      const savedGame = await saveGame(updatedGame);
+      setGame(savedGame);
+      setResponse('');
+      setError('');
+    } catch {
+      setError('Unable to save round results. Please try again.');
+    }
   }
 
   return (

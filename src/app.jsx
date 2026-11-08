@@ -51,7 +51,6 @@ export default function App() {
   }, []);
 
   function handleLogout() {
-    localStorage.removeItem('currentGame');
     setUser(null);
   }
 

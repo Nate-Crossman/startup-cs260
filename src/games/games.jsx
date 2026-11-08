@@ -122,6 +122,17 @@ export function Games() {
         return;
       }
 
+      const currentGameResponse = await fetch('/api/auth/current-game', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ currentGameId: createdGame.id }),
+      });
+      if (!currentGameResponse.ok) {
+        setGames((currentGames) => [...currentGames, createdGame]);
+        setError('Game created, but unable to set it as your current game.');
+        return;
+      }
+
       setGames((currentGames) => [...currentGames, createdGame]);
     } catch {
       setError('Unable to create game. Please try again.');
@@ -136,7 +147,6 @@ export function Games() {
         throw new Error('Unable to clear games');
       }
 
-      localStorage.removeItem('currentGame');
       setGames([]);
     } catch {
       setError('Unable to clear games. Please try again.');
@@ -185,8 +195,6 @@ export function Games() {
       return;
     }
 
-    const currentGame = JSON.parse(localStorage.getItem('currentGame') ?? 'null');
-
     try {
       const currentGameResponse = await fetch(
         `/api/games/${encodeURIComponent(String(game.id))}`,
@@ -207,9 +215,13 @@ export function Games() {
         : { ...targetGame, users: [...targetGame.users, { username: user.email, score: 0, response: '' }] };
 
       let updatedPreviousGame;
-      if (currentGame && currentGame.id !== game.id) {
+      if (
+        user.currentGameId !== null
+        && user.currentGameId !== undefined
+        && String(user.currentGameId) !== String(game.id)
+      ) {
         const previousGameResponse = await fetch(
-          `/api/games/${encodeURIComponent(String(currentGame.id))}`,
+          `/api/games/${encodeURIComponent(String(user.currentGameId))}`,
         );
         if (previousGameResponse.ok) {
           const previousGame = await previousGameResponse.json();
@@ -251,12 +263,21 @@ export function Games() {
         return;
       }
 
+      const currentGameUpdate = await fetch('/api/auth/current-game', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ currentGameId: joinedGame.id }),
+      });
+      if (!currentGameUpdate.ok) {
+        setError('Joined the game, but unable to save it as your current game.');
+        return;
+      }
+
       const finalGames = games.filter((savedGame) => (
         savedGame.id !== joinedGame.id
         && (!updatedPreviousGame || savedGame.id !== updatedPreviousGame.id)
       ));
       finalGames.push(...[updatedPreviousGame, joinedGame].filter(Boolean));
-      localStorage.setItem('currentGame', JSON.stringify(joinedGame));
       setGames(finalGames);
       navigate('/play');
     } catch {
