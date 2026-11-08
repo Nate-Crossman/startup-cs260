@@ -109,41 +109,67 @@ export function Games() {
 
   async function joinGame(game) {
     setError('');
+    let user;
     try {
-      const user = await getAuthenticatedUser();
-      if (!user) {
-        setError('Sign in to join a game');
-        return;
-      }
+      user = await getAuthenticatedUser();
+    } catch {
+      setError('Unable to verify your sign-in. Please try again.');
+      return;
+    }
+    if (!user) {
+      setError('Sign in to join a game');
+      return;
+    }
 
-      const currentGame = JSON.parse(localStorage.getItem('currentGame') ?? 'null');
-      const savedGames = JSON.parse(localStorage.getItem('games') ?? '[]');
-      const joiningExistingGame = game.users.some((player) => player.username === user.email);
-      if (!joiningExistingGame && game.users.length >= MAX_PLAYERS) {
-        setError('This game is full');
-        return;
-      }
+    const currentGame = JSON.parse(localStorage.getItem('currentGame') ?? 'null');
+    const savedGames = JSON.parse(localStorage.getItem('games') ?? '[]');
+    const joiningExistingGame = game.users.some((player) => player.username === user.email);
+    if (!joiningExistingGame && game.users.length >= MAX_PLAYERS) {
+      setError('This game is full');
+      return;
+    }
 
-      const updatedGames = savedGames.map((savedGame) => {
-        if (currentGame && savedGame.id === currentGame.id && currentGame.id !== game.id) {
-          return removePlayerFromGame(savedGame, user.email);
-        }
-        return savedGame;
+    const updatedGames = savedGames.map((savedGame) => {
+      if (currentGame && savedGame.id === currentGame.id && currentGame.id !== game.id) {
+        return removePlayerFromGame(savedGame, user.email);
+      }
+      return savedGame;
+    });
+    const targetGame = updatedGames.find((savedGame) => savedGame.id === game.id) ?? game;
+    const gameWithUser = targetGame.users.some((player) => player.username === user.email)
+      ? targetGame
+      : { ...targetGame, users: [...targetGame.users, { username: user.email, score: 0, response: '' }] };
+
+    try {
+      let response = await fetch(`/api/games/${encodeURIComponent(String(game.id))}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(gameWithUser),
       });
-      const targetGame = updatedGames.find((savedGame) => savedGame.id === game.id) ?? game;
-      const joinedGame = targetGame.users.some((player) => player.username === user.email)
-        ? targetGame
-        : { ...targetGame, users: [...targetGame.users, { username: user.email, score: 0, response: '' }] };
+      let joinedGame = await response.json();
+      if (response.status === 404) {
+        response = await fetch('/api/games', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(gameWithUser),
+        });
+        joinedGame = await response.json();
+      }
+
+      if (!response.ok) {
+        setError(joinedGame.error ?? 'Unable to join game');
+        return;
+      }
+
       const finalGames = updatedGames.some((savedGame) => savedGame.id === game.id)
         ? updatedGames.map((savedGame) => savedGame.id === game.id ? joinedGame : savedGame)
         : [...updatedGames, joinedGame];
-
       localStorage.setItem('games', JSON.stringify(finalGames));
       localStorage.setItem('currentGame', JSON.stringify(joinedGame));
       setGames(finalGames);
       navigate('/play');
     } catch {
-      setError('Unable to verify your sign-in. Please try again.');
+      setError('Unable to join game. Please try again.');
     }
   }
 
