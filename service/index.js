@@ -4,12 +4,10 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const uuid = require('uuid');
+const database = require('./database');
 const app = express();
 
 const authCookieName = 'token';
-
-let users = []
-let games = []
 
 const port = process.argv.length > 2 ? process.argv[2] : 4000;
 const frontendDirectory = fs.existsSync(path.join(__dirname, 'public', 'index.html'))
@@ -34,7 +32,7 @@ app.post('/api/auth/create', async (req, res) => {
   }
 
   const normalizedEmail = email.trim().toLowerCase();
-  if (users.some((user) => user.email === normalizedEmail)) {
+  if (await database.getUserByEmail(normalizedEmail)) {
     return res.status(409).json({ error: 'An account with that email already exists' });
   }
 
@@ -45,7 +43,14 @@ app.post('/api/auth/create', async (req, res) => {
     authToken: uuid.v4(),
     currentGameId: null,
   };
-  users.push(user);
+  try {
+    await database.addUser(user);
+  } catch (error) {
+    if (error.code === 11000) {
+      return res.status(409).json({ error: 'An account with that email already exists' });
+    }
+    throw error;
+  }
   res.cookie(authCookieName, user.authToken, authCookieOptions);
 
   return res.status(201).json({ email: normalizedEmail, currentGameId: user.currentGameId });
@@ -60,21 +65,22 @@ app.post('/api/auth/login', async (req, res) => {
   }
 
   const normalizedEmail = email.trim().toLowerCase();
-  const user = users.find((candidate) => candidate.email === normalizedEmail);
+  const user = await database.getUserByEmail(normalizedEmail);
   if (!user || !(await bcrypt.compare(password, user.password))) {
     return res.status(401).json({ error: 'Incorrect email or password' });
   }
 
-  user.authToken = uuid.v4();
-  res.cookie(authCookieName, user.authToken, authCookieOptions);
+  const authToken = uuid.v4();
+  await database.updateUserByEmail(user.email, { authToken });
+  res.cookie(authCookieName, authToken, authCookieOptions);
 
   return res.json({ email: user.email, currentGameId: user.currentGameId });
 });
 
 // Verify the current auth token
-app.get('/api/auth/me', (req, res) => {
+app.get('/api/auth/me', async (req, res) => {
   const authToken = req.cookies[authCookieName];
-  const user = users.find((candidate) => candidate.authToken === authToken);
+  const user = await database.getUserByAuthToken(authToken);
   if (!user) {
     return res.status(401).json({ error: 'Authentication required' });
   }
@@ -83,9 +89,9 @@ app.get('/api/auth/me', (req, res) => {
 });
 
 // Set or clear the authenticated user's current game
-app.put('/api/auth/current-game', (req, res) => {
+app.put('/api/auth/current-game', async (req, res) => {
   const authToken = req.cookies[authCookieName];
-  const user = users.find((candidate) => candidate.authToken === authToken);
+  const user = await database.getUserByAuthToken(authToken);
   if (!user) {
     return res.status(401).json({ error: 'Authentication required' });
   }
@@ -101,19 +107,19 @@ app.put('/api/auth/current-game', (req, res) => {
 
   if (
     currentGameId !== null
-    && !games.some((game) => String(game.id) === String(currentGameId))
+    && !(await database.getGameById(currentGameId))
   ) {
     return res.status(404).json({ error: 'Game not found' });
   }
 
-  user.currentGameId = currentGameId;
-  return res.json({ email: user.email, currentGameId: user.currentGameId });
+  await database.updateUserByEmail(user.email, { currentGameId });
+  return res.json({ email: user.email, currentGameId });
 });
 
 // Get the authenticated user's current game
-app.get('/api/auth/current-game', (req, res) => {
+app.get('/api/auth/current-game', async (req, res) => {
   const authToken = req.cookies[authCookieName];
-  const user = users.find((candidate) => candidate.authToken === authToken);
+  const user = await database.getUserByAuthToken(authToken);
   if (!user) {
     return res.status(401).json({ error: 'Authentication required' });
   }
@@ -122,9 +128,9 @@ app.get('/api/auth/current-game', (req, res) => {
     return res.json(null);
   }
 
-  const game = games.find((candidate) => String(candidate.id) === String(user.currentGameId));
+  const game = await database.getGameById(user.currentGameId);
   if (!game) {
-    user.currentGameId = null;
+    await database.updateUserByEmail(user.email, { currentGameId: null });
     return res.json(null);
   }
 
@@ -132,11 +138,11 @@ app.get('/api/auth/current-game', (req, res) => {
 });
 
 // Revoke the current user's auth token
-app.post('/api/auth/logout', (req, res) => {
+app.post('/api/auth/logout', async (req, res) => {
   const authToken = req.cookies[authCookieName];
-  const user = users.find((candidate) => candidate.authToken === authToken);
+  const user = await database.getUserByAuthToken(authToken);
   if (user) {
-    user.authToken = null;
+    await database.clearUserAuthToken(user.email);
   }
 
   res.clearCookie(authCookieName, authCookieOptions);
@@ -144,34 +150,32 @@ app.post('/api/auth/logout', (req, res) => {
 });
 
 // Add a game
-app.post('/api/games', (req, res) => {
+app.post('/api/games', async (req, res) => {
   const game = req.body;
 
   if (!game || typeof game !== 'object' || Array.isArray(game)) {
     return res.status(400).json({ error: 'Game data must be a JSON object' });
   }
 
-  games.push(game);
+  await database.addGame(game);
   return res.status(201).json(game);
 });
 
 // Clear all games for development
-app.delete('/api/games', (req, res) => {
-  games = [];
-  users.forEach((user) => {
-    user.currentGameId = null;
-  });
+app.delete('/api/games', async (req, res) => {
+  await database.deleteAllGames();
+  await database.setAllUsersCurrentGameId(null);
   return res.status(204).end();
 });
 
 // Get all games
-app.get('/api/games', (req, res) => {
-  return res.json(games);
+app.get('/api/games', async (req, res) => {
+  return res.json(await database.getAllGames());
 });
 
 // Get a game by ID
-app.get('/api/games/:id', (req, res) => {
-  const game = games.find((existingGame) => String(existingGame.id) === req.params.id);
+app.get('/api/games/:id', async (req, res) => {
+  const game = await database.getGameById(req.params.id);
   if (!game) {
     return res.status(404).json({ error: 'Game not found' });
   }
@@ -180,7 +184,7 @@ app.get('/api/games/:id', (req, res) => {
 });
 
 // Replace a game with the given ID
-app.put('/api/games/:id', (req, res) => {
+app.put('/api/games/:id', async (req, res) => {
   const game = req.body;
 
   if (!game || typeof game !== 'object' || Array.isArray(game)) {
@@ -190,12 +194,11 @@ app.put('/api/games/:id', (req, res) => {
     return res.status(400).json({ error: 'Game ID must match the request URL' });
   }
 
-  const gameIndex = games.findIndex((existingGame) => String(existingGame.id) === req.params.id);
-  if (gameIndex === -1) {
+  const replaced = await database.replaceGame(req.params.id, game);
+  if (!replaced) {
     return res.status(404).json({ error: 'Game not found' });
   }
 
-  games[gameIndex] = game;
   return res.json(game);
 });
 
@@ -211,6 +214,13 @@ app.get('/{*path}', (req, res, next) => {
   });
 });
 
-app.listen(port, () => {
-  console.log(`Listening on port ${port}`);
-});
+database.connectToDatabase()
+  .then(() => {
+    app.listen(port, () => {
+      console.log(`Listening on port ${port}`);
+    });
+  })
+  .catch((error) => {
+    console.error('Unable to connect to MongoDB:', error.message);
+    process.exit(1);
+  });
